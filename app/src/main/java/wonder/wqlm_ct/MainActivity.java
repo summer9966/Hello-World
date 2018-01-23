@@ -11,7 +11,10 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.accessibility.AccessibilityManager;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import java.util.Iterator;
@@ -21,34 +24,81 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = "wonder:MainActivity";
 
+    private CheckBox cb_modeChoice, cb_notification, cb_accessibility;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        isNotificationListenerServiceEnabled(this);
-        new Handler().postDelayed(new Runnable() {
+        initObj();
+    }
+
+    private void initObj() {
+        cb_modeChoice = findViewById(R.id.cb_modeChoice);
+        cb_notification = findViewById(R.id.cb_notification);
+        cb_accessibility = findViewById(R.id.cb_accessibility);
+
+        initCheckBoxState();
+        setClickListener();
+    }
+
+    private void initCheckBoxState() {
+        if (Config.runningMode == Config.compatibleMode) {
+            cb_modeChoice.setChecked(true);
+        } else {
+            cb_modeChoice.setChecked(false);
+        }
+        if (isNotificationListenerServiceEnabled(this)) {
+            cb_notification.setChecked(true);
+        } else {
+            cb_notification.setChecked(false);
+        }
+        if (isAccessibilityServiceRunning()) {
+            cb_accessibility.setChecked(true);
+        } else {
+            cb_accessibility.setChecked(false);
+        }
+    }
+
+    private void setClickListener() {
+        cb_modeChoice.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-                if (isAccessibilityServiceRunning()) {
-                    Toast.makeText(getApplication(), "Hello World 1号 服务已启用", Toast.LENGTH_LONG).show();
+            public void onClick(View view) {
+                if (cb_modeChoice.isChecked()) {
+                    Config.runningMode = Config.compatibleMode;
                 } else {
-                    Toast.makeText(getApplication(), "Hello World 1号 服务已停止", Toast.LENGTH_LONG).show();
+                    Config.runningMode = Config.highSpeedMode;
                 }
             }
-        }, 3000);
+        });
+        cb_notification.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getApplication().startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
+            }
+        });
+        cb_accessibility.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getApplication().startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        initCheckBoxState();
+        super.onResume();
     }
 
     private boolean isNotificationListenerServiceEnabled(Context context) {
         Set<String> packageNames = NotificationManagerCompat.getEnabledListenerPackages(context);
         if (packageNames.contains(context.getPackageName())) {
             Log.i(TAG, "isNotificationListenerServiceEnabled = true");
-            Toast.makeText(this, "Hello World 2号 服务已启用", Toast.LENGTH_LONG).show();
             return true;
         }
         Log.i(TAG, "isNotificationListenerServiceEnabled = false");
-        Toast.makeText(this, "Hello World 2号 服务已停止", Toast.LENGTH_LONG).show();
-        context.startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
         return false;
     }
 
@@ -81,4 +131,5 @@ public class MainActivity extends AppCompatActivity {
         }
         return true;
     }
+
 }

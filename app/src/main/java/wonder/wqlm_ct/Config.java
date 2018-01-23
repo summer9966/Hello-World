@@ -11,7 +11,7 @@ public class Config {
     public final static int compatibleMode = 0;
     // 1 高速模式：通过ViewID来查找Node
     public final static int highSpeedMode = 1;
-    public final static int runningMode = highSpeedMode;
+    public static int runningMode = highSpeedMode;
 
     public final static boolean isGotPacketSelf = true;
 }

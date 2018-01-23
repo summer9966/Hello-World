@@ -1,6 +1,5 @@
 package wonder.wqlm_ct;
 
-import android.accessibilityservice.AccessibilityService;
 import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -56,12 +55,13 @@ public class HighSpeedMode {
         }
     }
 
-    public static void dealWindowContentChanged(AccessibilityNodeInfo rootNode) {
+    public static void dealWindowContentChanged(String className, AccessibilityNodeInfo rootNode) {
         if (rootNode == null) {
             return;
         }
         AccessibilityHelper.clickNewMessage(rootNode);
         getPacket(rootNode, false);
+
     }
 
     private static boolean getPacket(AccessibilityNodeInfo rootNode, boolean isSelfPacket) {

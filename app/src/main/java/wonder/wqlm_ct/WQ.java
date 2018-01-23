@@ -26,6 +26,7 @@ public class WQ {
     public final static String WCN_PACKET_DETAIL = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI";
 
 
+
     /*
         Resource-id
     */
@@ -94,6 +95,8 @@ public class WQ {
     public static int currentSelfPacketStatus = W_otherStatus;
 
     public static boolean isPreviouslyLockScreen = false;
+
+    public static boolean isGotNotification = false;
 
     public static void setCurrentSelfPacketStatus(int status) {
         currentSelfPacketStatus = status;

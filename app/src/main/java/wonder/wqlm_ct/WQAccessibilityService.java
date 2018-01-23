@@ -21,17 +21,22 @@ public class WQAccessibilityService extends AccessibilityService {
         String className = accessibilityEvent.getClassName().toString();
         AccessibilityNodeInfo rootNode = getRootInActiveWindow();
 
-        // Log.i(TAG, "onAccessibilityEvent eventType = " + eventType + "className = " + className);
+        Log.i(TAG, "onAccessibilityEvent eventType = " + eventType + "className = " + className);
 
         switch (eventType) {
             // 第一步：监听通知栏消息
             case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED: {
+                if (WQ.isGotNotification) {
+                    return;
+                }
+                WQ.isGotNotification = true;
                 Log.i(TAG, "通知栏消息改变");
-                /*if (AccessibilityHelper.isLockScreen(this.getApplication())) {
+                if (AccessibilityHelper.isLockScreen(this.getApplication())) {
                     AccessibilityHelper.wakeAndUnlock(this.getApplication());
                     WQ.isPreviouslyLockScreen = true;
                 }
-                AccessibilityHelper.openNotification(accessibilityEvent, WQ.WT_PACKET);*/
+                AccessibilityHelper.openNotification(accessibilityEvent, WQ.WT_PACKET);
+                WQ.isGotNotification = false;
                 break;
             }
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED: {
@@ -54,7 +59,7 @@ public class WQAccessibilityService extends AccessibilityService {
                     // 联系人列表
                     CompatibleMode.dealWindowContentChanged(rootNode);
                 } else {
-                    HighSpeedMode.dealWindowContentChanged(rootNode);
+                    HighSpeedMode.dealWindowContentChanged(className, rootNode);
                 }
                 break;
             }

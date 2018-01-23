@@ -3,4 +3,13 @@
     <string name="app_description">By Wonder.li</string>
     <string name="service_lable1">Hello World!</string>
     <string name="service_lable2">Hello World!</string>
+    <string name="main_activity_descr">注意：\n
+        请取消锁屏密码。\n
+        华为手机：\n
+        1.请在“权限管理”中把 HelloWorld 设置为信任的应用。\n
+        2.请在“电池” -> “锁屏清理应用” 中把 HelloWorld 设置为不清理。\n
+        小米手机：\n
+        请在“电量和性能” -> “神隐模式” 对 HelloWorld 不限制。\n
+        其它手机：\n
+        自己看着办。</string>
 </resources>

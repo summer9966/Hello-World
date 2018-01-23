@@ -36,6 +36,10 @@ public class WQNotificationService extends NotificationListenerService {
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
+        if (WQ.isGotNotification) {
+            return;
+        }
+        WQ.isGotNotification = true;
         Log.i(TAG, "onNotificationPosted: " + sbn.getPackageName().toString()
                 + " " + sbn.getNotification().extras.getString(Notification.EXTRA_TEXT));
         if (AccessibilityHelper.isLockScreen(this.getApplication())) {
@@ -43,13 +47,13 @@ public class WQNotificationService extends NotificationListenerService {
             WQ.isPreviouslyLockScreen = true;
         }
         AccessibilityHelper.openNotification(sbn, WQ.WECHAT_PACKAGE_NAME, WQ.WT_PACKET);
+        WQ.isGotNotification = false;
         super.onNotificationPosted(sbn);
     }
 
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
         Log.i(TAG, "onNotificationRemoved: " + sbn.toString());
-
         super.onNotificationRemoved(sbn);
     }
 
