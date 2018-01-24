@@ -97,6 +97,9 @@ public class WQ {
     public static boolean isPreviouslyLockScreen = false;
 
     public static boolean isGotNotification = false;
+    public static boolean isClickedNewMessageList = false;
+    public static boolean isGotPacket = false;
+    public static boolean isStuckCauseNull = false;
 
     public static void setCurrentSelfPacketStatus(int status) {
         currentSelfPacketStatus = status;

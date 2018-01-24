@@ -1,9 +1,11 @@
 package wonder.wqlm_ct;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.List;
+
 
 /**
  * Created by feeling on 2018/1/20.
@@ -14,9 +16,10 @@ public class HighSpeedMode {
 
     private static boolean isGotPacket = false;
 
-    public static void dealWindowStateChanged(String className, AccessibilityNodeInfo rootNode) {
+    public static void dealWindowStateChanged(String className, final AccessibilityNodeInfo rootNode) {
         Log.i(TAG, "dealWindowStateChanged");
         if (rootNode == null) {
+            Log.i(TAG, "dealWindowStateChanged rootNode == null");
             return;
         }
         if (className.equals(WQ.WCN_LAUNCHER)) {
@@ -29,12 +32,15 @@ public class HighSpeedMode {
             }
         } else if (className.equals(WQ.WCN_PACKET_RECEIVE)) {
             // 打开红包
+            Log.i(TAG, "dealWindowStateChanged 打开红包页面");
             if (Config.isGotPacketSelf && WQ.currentSelfPacketStatus == WQ.W_intoChatDialogStatus) {
                 openPacket(rootNode);
                 WQ.setCurrentSelfPacketStatus(WQ.W_gotSelfPacketStatus);
             } else {
                 if (openPacket(rootNode)) {
                     isGotPacket = true;
+                    WQ.isClickedNewMessageList = false;
+                    WQ.isGotPacket = false;
                 }
             }
         } else if (className.equals(WQ.WCN_PACKET_SEND)) {
@@ -44,6 +50,7 @@ public class HighSpeedMode {
                 WQ.setCurrentSelfPacketStatus(WQ.W_openedPayStatus);
             }
         } else if (className.equals(WQ.WCN_PACKET_DETAIL)) {
+            Log.i(TAG, "dealWindowStateChanged 红包详情页面");
             if (WQ.currentSelfPacketStatus == WQ.W_gotSelfPacketStatus) {
                 AccessibilityHelper.performBack(WQAccessibilityService.getService());
                 WQ.setCurrentSelfPacketStatus(WQ.W_otherStatus);
@@ -56,17 +63,33 @@ public class HighSpeedMode {
     }
 
     public static void dealWindowContentChanged(String className, AccessibilityNodeInfo rootNode) {
+        Log.i(TAG, "dealWindowContentChanged");
         if (rootNode == null) {
+            Log.i(TAG, "dealWindowContentChanged rootNode == null");
             return;
         }
-        AccessibilityHelper.clickNewMessage(rootNode);
-        getPacket(rootNode, false);
 
+        if (AccessibilityHelper.clickNewMessage(rootNode)) {
+            WQ.isClickedNewMessageList = true;
+            return;
+        }
+        if (getPacket(rootNode, false)) {
+            WQ.isGotPacket = true;
+            return;
+        }
+
+        if (WQ.isStuckCauseNull) {
+            if (openPacket(rootNode)) {
+                WQ.isStuckCauseNull = false;
+                isGotPacket = true;
+            }
+        }
     }
 
     private static boolean getPacket(AccessibilityNodeInfo rootNode, boolean isSelfPacket) {
         Log.i(TAG, "getPacket");
         if (rootNode == null) {
+            Log.i(TAG, "getPacket rootNode == null");
             return false;
         }
         boolean result = false;
@@ -95,6 +118,7 @@ public class HighSpeedMode {
     private static boolean openPacket(AccessibilityNodeInfo rootNode) {
         Log.i(TAG, "openPacket");
         if (rootNode == null) {
+            Log.i(TAG, "openPacket rootNode == null");
             return false;
         }
         boolean result = false;

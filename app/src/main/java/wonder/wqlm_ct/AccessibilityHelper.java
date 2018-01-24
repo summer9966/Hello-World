@@ -62,6 +62,7 @@ public final class AccessibilityHelper {
                 }
             }
         }
+        Log.i(TAG, "clickNewMessage result = " + result);
         return result;
     }
 

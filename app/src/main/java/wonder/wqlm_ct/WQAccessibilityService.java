@@ -19,9 +19,19 @@ public class WQAccessibilityService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
         int eventType = accessibilityEvent.getEventType();
         String className = accessibilityEvent.getClassName().toString();
+
         AccessibilityNodeInfo rootNode = getRootInActiveWindow();
 
         Log.i(TAG, "onAccessibilityEvent eventType = " + eventType + "className = " + className);
+
+        if (rootNode == null) {
+            Log.w(TAG, "onAccessibilityEvent rootNode == null");
+            if (eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
+                    && className.equals(WQ.WCN_PACKET_RECEIVE)) {
+                WQ.isStuckCauseNull = true;
+            }
+            return;
+        }
 
         switch (eventType) {
             // 第一步：监听通知栏消息
@@ -63,6 +73,8 @@ public class WQAccessibilityService extends AccessibilityService {
                 }
                 break;
             }
+            default:
+                break;
         }
     }
 

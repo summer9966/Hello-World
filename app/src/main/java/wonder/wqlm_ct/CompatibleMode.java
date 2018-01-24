@@ -1,8 +1,7 @@
 package wonder.wqlm_ct;
 
-import android.accessibilityservice.AccessibilityService;
+import android.os.Handler;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.List;
