@@ -7,6 +7,8 @@ package wonder.wqlm_ct;
 public class WQ {
 
 
+    // 本程序包名
+    public final static String SELF_PACKAGE_NAME = "wonder.wqlm_ct";
     // 微信包名
     public final static String WECHAT_PACKAGE_NAME = "com.tencent.mm";
 
@@ -14,6 +16,11 @@ public class WQ {
     /*
         Class Name
     */
+    // 通知监听类名
+    public final static String SELFCN_NOTIFICATION = "FirstNotificationService";
+    // 辅助服务类名
+    public final static String SELFCN_ACCESSBILITY = "WQAccessibilityService";
+
     // 微信 聊天列表、聊天窗口
     public final static String WCN_LAUNCHER = "com.tencent.mm.ui.LauncherUI";
     // 微信 红包“開”的窗口
@@ -99,7 +106,6 @@ public class WQ {
     public static boolean isGotNotification = false;
     public static boolean isClickedNewMessageList = false;
     public static boolean isGotPacket = false;
-    public static boolean isStuckCauseNull = false;
 
     public static void setCurrentSelfPacketStatus(int status) {
         currentSelfPacketStatus = status;

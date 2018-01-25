@@ -2,19 +2,19 @@ package wonder.wqlm_ct;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.TargetApi;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Build;
-import android.os.Handler;
+import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import java.util.Iterator;
@@ -22,16 +22,37 @@ import java.util.List;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
-    private final static String TAG = "wonder:MainActivity";
+    private final static String TAG = "MainActivity";
 
     private CheckBox cb_modeChoice, cb_notification, cb_accessibility;
+    ServiceConnection serviceConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (serviceConnection == null) {
+            serviceConnection = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                    WonderLog.i(TAG, "Notification服务绑定成功");
+                    Toast.makeText(getApplication(), "Notification服务绑定成功", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName componentName) {
+                    WonderLog.i(TAG, "Notification服务被断开");
+                    Toast.makeText(getApplication(), "Notification服务被断开", Toast.LENGTH_SHORT).show();
+                }
+            };
+        }
+
+        startService(new Intent(this,FirstNotificationService.class));
+        this.bindService(new Intent(this,FirstNotificationService.class), serviceConnection, Context.BIND_IMPORTANT);
+
         initObj();
+
     }
 
     private void initObj() {
@@ -49,12 +70,14 @@ public class MainActivity extends AppCompatActivity {
         } else {
             cb_modeChoice.setChecked(false);
         }
-        if (isNotificationListenerServiceEnabled(this)) {
+        if (Tools.isServiceRunning(this, WQ.SELF_PACKAGE_NAME + "."
+                + WQ.SELFCN_NOTIFICATION)) {
             cb_notification.setChecked(true);
         } else {
             cb_notification.setChecked(false);
         }
-        if (isAccessibilityServiceRunning()) {
+        if (Tools.isServiceRunning(this, WQ.SELF_PACKAGE_NAME + "."
+                + WQ.SELFCN_ACCESSBILITY)) {
             cb_accessibility.setChecked(true);
         } else {
             cb_accessibility.setChecked(false);
@@ -92,13 +115,23 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
     private boolean isNotificationListenerServiceEnabled(Context context) {
         Set<String> packageNames = NotificationManagerCompat.getEnabledListenerPackages(context);
         if (packageNames.contains(context.getPackageName())) {
-            Log.i(TAG, "isNotificationListenerServiceEnabled = true");
+            WonderLog.i(TAG, "isNotificationListenerServiceEnabled = true");
             return true;
         }
-        Log.i(TAG, "isNotificationListenerServiceEnabled = false");
+        WonderLog.i(TAG, "isNotificationListenerServiceEnabled = false");
         return false;
     }
 

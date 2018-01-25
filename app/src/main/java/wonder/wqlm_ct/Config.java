@@ -14,4 +14,5 @@ public class Config {
     public static int runningMode = highSpeedMode;
 
     public final static boolean isGotPacketSelf = true;
+    public final static boolean isUsedGuardService = false;
 }

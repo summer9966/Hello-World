@@ -1,7 +1,10 @@
 package wonder.wqlm_ct;
 
 import android.accessibilityservice.AccessibilityService;
-import android.util.Log;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
@@ -12,8 +15,15 @@ import android.widget.Toast;
 
 public class WQAccessibilityService extends AccessibilityService {
 
-    private final static String TAG = "wonder:WQAccessibilityService";
+    private final static String TAG = "WQAccessibilityService";
     private static WQAccessibilityService service;
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // flags = START_FLAG_RETRY;
+        return START_STICKY;
+        // return super.onStartCommand(intent, flags, startId);
+    }
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
@@ -22,16 +32,7 @@ public class WQAccessibilityService extends AccessibilityService {
 
         AccessibilityNodeInfo rootNode = getRootInActiveWindow();
 
-        Log.i(TAG, "onAccessibilityEvent eventType = " + eventType + "className = " + className);
-
-        if (rootNode == null) {
-            Log.w(TAG, "onAccessibilityEvent rootNode == null");
-            if (eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
-                    && className.equals(WQ.WCN_PACKET_RECEIVE)) {
-                WQ.isStuckCauseNull = true;
-            }
-            return;
-        }
+        WonderLog.i(TAG, "onAccessibilityEvent eventType = " + eventType + "className = " + className);
 
         switch (eventType) {
             // 第一步：监听通知栏消息
@@ -40,17 +41,18 @@ public class WQAccessibilityService extends AccessibilityService {
                     return;
                 }
                 WQ.isGotNotification = true;
-                Log.i(TAG, "通知栏消息改变");
-                if (AccessibilityHelper.isLockScreen(this.getApplication())) {
-                    AccessibilityHelper.wakeAndUnlock(this.getApplication());
+                WonderLog.i(TAG, "通知栏消息改变");
+                if (Tools.isLockScreen(this.getApplication())) {
+                    Tools.wakeAndUnlock(this.getApplication());
                     WQ.isPreviouslyLockScreen = true;
                 }
                 AccessibilityHelper.openNotification(accessibilityEvent, WQ.WT_PACKET);
                 WQ.isGotNotification = false;
+                FirstNotificationService.toggleNotificationListenerService(FirstNotificationService.getService());
                 break;
             }
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED: {
-                Log.i(TAG, "窗口状态改变");
+                WonderLog.i(TAG, "窗口状态改变");
                 if (Config.runningMode == Config.compatibleMode) {
                     CompatibleMode.dealWindowStateChanged(className, rootNode);
                 } else {
@@ -64,7 +66,7 @@ public class WQAccessibilityService extends AccessibilityService {
                 break;
             }
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED: {
-                // Log.i(TAG, "窗口内容变化");
+                // WonderLog.i(TAG, "窗口内容变化");
                 if (Config.runningMode == Config.compatibleMode) {
                     // 联系人列表
                     CompatibleMode.dealWindowContentChanged(rootNode);
@@ -80,13 +82,13 @@ public class WQAccessibilityService extends AccessibilityService {
 
     @Override
     public void onInterrupt() {
-        Log.i(TAG, "onInterrupt");
+        WonderLog.i(TAG, "onInterrupt");
         Toast.makeText(this, "Hello World 1号 服务被中断", Toast.LENGTH_LONG).show();
     }
 
     @Override
     protected void onServiceConnected() {
-        Log.i(TAG, "onServiceConnected");
+        WonderLog.i(TAG, "onServiceConnected");
         Toast.makeText(this, "Hello World 1号 服务已连接", Toast.LENGTH_LONG).show();
         service = this;
         super.onServiceConnected();
@@ -100,5 +102,17 @@ public class WQAccessibilityService extends AccessibilityService {
 
     public static AccessibilityService getService() {
         return service;
+    }
+
+    public static void toggleNotificationListenerService(Context context) {
+        WonderLog.e(TAG,"toggleNLS");
+        PackageManager pm = context.getPackageManager();
+        pm.setComponentEnabledSetting(
+                new ComponentName(context, FirstNotificationService.class),
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+
+        pm.setComponentEnabledSetting(
+                new ComponentName(context, FirstNotificationService.class),
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
     }
 }

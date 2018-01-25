@@ -1,7 +1,5 @@
 package wonder.wqlm_ct;
 
-import android.os.Handler;
-import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.List;
@@ -12,7 +10,7 @@ import java.util.List;
 
 public class CompatibleMode {
 
-    private final static String TAG = "wonder:CompatibleMode";
+    private final static String TAG = "CompatibleMode";
 
     public static void dealWindowStateChanged(String className, AccessibilityNodeInfo rootNode) {
         if (rootNode == null) {
@@ -53,7 +51,7 @@ public class CompatibleMode {
     }
 
     private static boolean openPacket(AccessibilityNodeInfo rootNode) {
-        Log.i(TAG, "openPacket!");
+        WonderLog.i(TAG, "openPacket!");
         clickAllView(rootNode);
         return true;
     }
@@ -63,7 +61,7 @@ public class CompatibleMode {
     }
 
     private static void dealChatListAndWindow(AccessibilityNodeInfo rootNode) {
-        Log.i(TAG, "dealChatListAndWindow");
+        WonderLog.i(TAG, "dealChatListAndWindow");
         if (rootNode == null) {
             return;
         }
@@ -77,7 +75,7 @@ public class CompatibleMode {
     }
 
     private static boolean inputClickByText(AccessibilityNodeInfo rootNode, String content) {
-        Log.i(TAG, "inputClickByText! Text = " + content);
+        WonderLog.i(TAG, "inputClickByText! Text = " + content);
         boolean result = false;
         if (rootNode != null) {
             List<AccessibilityNodeInfo> nodeInfoList = rootNode.findAccessibilityNodeInfosByText(content);
@@ -94,7 +92,7 @@ public class CompatibleMode {
     }
 
     private static void clickAllView(AccessibilityNodeInfo nodeInfo) {
-        Log.i(TAG, "clickAllView!");
+        WonderLog.i(TAG, "clickAllView!");
         if (nodeInfo.getChildCount() == 0) {
             if (AccessibilityHelper.performClick(nodeInfo)) {
                 return;
@@ -109,12 +107,12 @@ public class CompatibleMode {
     }
 
     private static void inputClickByViewIDAndText(AccessibilityNodeInfo nodeInfo, String viewID, String text) {
-        Log.i(TAG, "inputClickByViewIDAndText viewID = " + viewID + " text = " + text);
+        WonderLog.i(TAG, "inputClickByViewIDAndText viewID = " + viewID + " text = " + text);
         if (nodeInfo != null) {
             List<AccessibilityNodeInfo> nodeInfoList = nodeInfo.findAccessibilityNodeInfosByViewId(viewID);
             if (!nodeInfoList.isEmpty()) {
                 for (AccessibilityNodeInfo item : nodeInfoList) {
-                    Log.i(TAG, "inputClickByViewIDAndText nodeInfoList = " + item.getText().toString());
+                    WonderLog.i(TAG, "inputClickByViewIDAndText nodeInfoList = " + item.getText().toString());
                     if (item.getText().toString().contains(text)) {
                         AccessibilityHelper.performClick(item);
                     }
@@ -124,7 +122,7 @@ public class CompatibleMode {
     }
 
     private static void getSelfPacket(AccessibilityNodeInfo rootNode) {
-        Log.i(TAG, "getSelfPacket");
+        WonderLog.i(TAG, "getSelfPacket");
         if (rootNode == null) {
             return;
         }
