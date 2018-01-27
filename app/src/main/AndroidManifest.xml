@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -24,7 +24,7 @@
 
         <service android:name=".WQAccessibilityService"
             android:enabled="true"
-            android:exported="true"
+            android:exported="false"
             android:priority = "1000"
             android:process=":wonder.wqlm_ct"
             android:label="@string/service_lable1"
@@ -38,9 +38,9 @@
                 android:resource="@xml/accessibilityservice" />
         </service>
 
-        <service android:name=".FirstNotificationService"
+        <service android:name=".WQNotificationService"
             android:enabled="true"
-            android:exported="true"
+            android:exported="false"
             android:priority = "1000"
             android:process=":wonder.wqlm_ct"
             android:label="@string/service_lable2"
@@ -50,11 +50,10 @@
             </intent-filter>
         </service>
 
-        <service android:name=".GuardService"
+        <service android:name=".WQService"
             android:enabled="true"
-            android:exported="true"
-            android:priority = "1000"
-            android:process=":remote">
+            android:exported="false"
+            android:priority = "1000">
             <intent-filter>
                 <action android:name="wonder.wqlm_ct.GuardService" />
             </intent-filter>

@@ -5,8 +5,10 @@ import android.app.KeyguardManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.PowerManager;
+import android.support.v4.app.NotificationManagerCompat;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by feeling on 2018/1/25.
@@ -34,6 +36,16 @@ public final class Tools {
         return isRunning;
     }
 
+    public static boolean isNotificationListenerServiceEnabled(Context context) {
+        Set<String> packageNames = NotificationManagerCompat.getEnabledListenerPackages(context);
+        if (packageNames.contains(context.getPackageName())) {
+            WonderLog.i(TAG, "isNotificationListenerServiceEnabled = true");
+            return true;
+        }
+        WonderLog.i(TAG, "isNotificationListenerServiceEnabled = false");
+        return false;
+    }
+
     public static void wakeAndUnlock(Context context)
     {
         WonderLog.i(TAG, "wakeAndUnlock");
@@ -55,7 +67,7 @@ public final class Tools {
         boolean result;
         KeyguardManager km = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        boolean isScreenOn = false;
+        boolean isScreenOn;
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
             isScreenOn = pm.isInteractive();
         } else {

@@ -5,6 +5,8 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.List;
 
+import static java.lang.Thread.sleep;
+
 
 /**
  * Created by feeling on 2018/1/20.
@@ -120,7 +122,6 @@ public class HighSpeedMode {
         WonderLog.i(TAG, "openPacket");
         if (rootNode == null) {
             WonderLog.w(TAG, "openPacket == null");
-            AccessibilityHelper.performBack(WQAccessibilityService.getService());
             return false;
         }
         boolean result = false;
@@ -132,39 +133,7 @@ public class HighSpeedMode {
                 result = true;
             }
         }
-        if (!result) {
-            AccessibilityHelper.performBack(WQAccessibilityService.getService());
-        }
         return result;
-    }
-
-    private static void judgeCurrentWindow(AccessibilityNodeInfo rootNode) {
-        if (rootNode == null) {
-            return;
-        }
-        List<AccessibilityNodeInfo> dialogList = rootNode.findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_LIST_DIALOG);
-        if (!dialogList.isEmpty()) {
-            WQ.currentWindow = WQ.W_chatListWindow;
-        } else {
-            if (foundViewID(rootNode, WQ.WID_CHAT_DIALOG_PACKET_TEXT)) {
-                WQ.currentWindow = WQ.W_chatWindow;
-            } else if (foundViewID(rootNode, WQ.WID_CHAT_PACKET_DIALOG_BUTTON)) {
-                WQ.currentWindow = WQ.W_packetWindow;
-            } else {
-                WQ.currentWindow = WQ.W_otherWindow;
-            }
-        }
-        WonderLog.i(TAG, "judgeCurrentWindow currentWindow = " + WQ.currentWindow);
-    }
-
-    private static boolean foundViewID(AccessibilityNodeInfo rootNode, String viewID) {
-        boolean result = rootNode.findAccessibilityNodeInfosByViewId(viewID).isEmpty();
-        WonderLog.i(TAG, "foundViewID result = " + result);
-        if (result) {
-            return false;
-        } else {
-            return true;
-        }
     }
 
 }

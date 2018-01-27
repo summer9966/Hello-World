@@ -17,7 +17,7 @@ public class WQ {
         Class Name
     */
     // 通知监听类名
-    public final static String SELFCN_NOTIFICATION = "FirstNotificationService";
+    public final static String SELFCN_NOTIFICATION = "WQNotificationService";
     // 辅助服务类名
     public final static String SELFCN_ACCESSBILITY = "WQAccessibilityService";
 

@@ -48,7 +48,6 @@ public class WQAccessibilityService extends AccessibilityService {
                 }
                 AccessibilityHelper.openNotification(accessibilityEvent, WQ.WT_PACKET);
                 WQ.isGotNotification = false;
-                FirstNotificationService.toggleNotificationListenerService(FirstNotificationService.getService());
                 break;
             }
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED: {
@@ -108,11 +107,11 @@ public class WQAccessibilityService extends AccessibilityService {
         WonderLog.e(TAG,"toggleNLS");
         PackageManager pm = context.getPackageManager();
         pm.setComponentEnabledSetting(
-                new ComponentName(context, FirstNotificationService.class),
+                new ComponentName(context, WQNotificationService.class),
                 PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
 
         pm.setComponentEnabledSetting(
-                new ComponentName(context, FirstNotificationService.class),
+                new ComponentName(context, WQNotificationService.class),
                 PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
     }
 }

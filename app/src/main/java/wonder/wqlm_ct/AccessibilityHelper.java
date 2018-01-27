@@ -136,4 +136,5 @@ public final class AccessibilityHelper {
         }
         service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
     }
+
 }
