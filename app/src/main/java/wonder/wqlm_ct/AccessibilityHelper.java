@@ -62,6 +62,29 @@ public final class AccessibilityHelper {
         return result;
     }
 
+    public static boolean clickMessage(AccessibilityNodeInfo nodeInfo) {
+        WonderLog.i(TAG, "clickMessage");
+        if (nodeInfo == null) {
+            WonderLog.i(TAG, "clickMessage nodeInfo == null");
+            return false;
+        }
+        boolean result = false;
+        List<AccessibilityNodeInfo> dialogList = nodeInfo.findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_LIST_DIALOG);
+        if (!dialogList.isEmpty()) {
+            for (AccessibilityNodeInfo item : dialogList) {
+                List<AccessibilityNodeInfo> messageTextList = item.findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_LIST_MESSAGE_TEXT);
+                if (!messageTextList.isEmpty()) {
+                    if (messageTextList.get(0).getText().toString().contains(WQ.WT_PACKET)) {
+                        item.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                        result = true;
+                    }
+                }
+            }
+        }
+        WonderLog.i(TAG, "clickMessage result = " + result);
+        return result;
+    }
+
     public static boolean openNotification(final AccessibilityEvent accessibilityEvent, final String textFound) {
         WonderLog.i(TAG, "openNotification AccessibilityEvent");
         List<CharSequence> texts = accessibilityEvent.getText();

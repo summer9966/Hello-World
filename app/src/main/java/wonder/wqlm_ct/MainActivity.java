@@ -1,12 +1,14 @@
 package wonder.wqlm_ct;
 
 import android.content.Intent;
+import android.os.Build;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -68,21 +70,31 @@ public class MainActivity extends AppCompatActivity {
         cb_notification.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getApplication().startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                    Intent intent = new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getApplication(), "当前安卓系统版本过低，请手动设置本应用的通知读取权限",
+                            Toast.LENGTH_LONG).show();
+                    boolean isNotificationServiceRunning = Tools.isServiceRunning(getApplication(),
+                            WQ.SELF_PACKAGE_NAME + "." + WQ.SELFCN_NOTIFICATION);
+                    cb_notification.setChecked(isNotificationServiceRunning);
+                }
             }
         });
         cb_accessibility.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getApplication().startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+                Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
             }
         });
         bt_serviceRestart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (WQNotificationService.getWqNotificationService() != null) {
-                    WQNotificationService.restarNotificationListenerService(getApplication());
-                }
+                WQNotificationService.restarNotificationListenerService(getApplication());
             }
         });
     }

@@ -63,6 +63,13 @@ public class HighSpeedMode {
     public static void dealWindowContentChanged(String className, AccessibilityNodeInfo rootNode) {
         WonderLog.i(TAG, "dealWindowContentChanged");
 
+        if (WQ.needBacktoMessageList) {
+            if (AccessibilityHelper.clickMessage(rootNode)) {
+                WQ.needBacktoMessageList = false;
+            }
+            return;
+        }
+
         if (AccessibilityHelper.clickNewMessage(rootNode)) {
             WQ.isClickedNewMessageList = true;
             handler.postDelayed(new Runnable() {
@@ -84,13 +91,9 @@ public class HighSpeedMode {
             return;
         }
 
-        /*if (openPacket(rootNode)) {
-            isGotPacket = true;
-        }*/
     }
 
     private static boolean getPacket(AccessibilityNodeInfo rootNode, boolean isSelfPacket) {
-        WonderLog.i(TAG, "getPacket");
         if (rootNode == null) {
             WonderLog.i(TAG, "getPacket rootNode == null");
             return false;
@@ -115,12 +118,14 @@ public class HighSpeedMode {
                 }
             }
         }
+        WonderLog.i(TAG, "getPacket result = " + result);
         return result;
     }
 
     private static boolean openPacket(AccessibilityNodeInfo rootNode) {
-        WonderLog.i(TAG, "openPacket");
         if (rootNode == null) {
+            AccessibilityHelper.performBack(WQAccessibilityService.getService());
+            AccessibilityHelper.performBack(WQAccessibilityService.getService());
             WonderLog.w(TAG, "openPacket == null");
             return false;
         }
@@ -133,6 +138,7 @@ public class HighSpeedMode {
                 result = true;
             }
         }
+        WonderLog.i(TAG, "openPacket result = " + result);
         return result;
     }
 

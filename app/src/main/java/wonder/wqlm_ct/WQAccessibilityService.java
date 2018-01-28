@@ -5,9 +5,15 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Handler;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by feeling on 2018/1/13.
@@ -17,6 +23,7 @@ public class WQAccessibilityService extends AccessibilityService {
 
     private final static String TAG = "WQAccessibilityService";
     private static WQAccessibilityService service;
+    private static Handler handler = new Handler();
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -31,6 +38,23 @@ public class WQAccessibilityService extends AccessibilityService {
         String className = accessibilityEvent.getClassName().toString();
 
         AccessibilityNodeInfo rootNode = getRootInActiveWindow();
+        ArrayList<AccessibilityNodeInfo> windowListRoots;
+        if (rootNode == null) {
+            WonderLog.i(TAG, "rootNode == null");
+            windowListRoots = getCurrentWindows(accessibilityEvent);
+            if (windowListRoots != null) {
+                rootNode = findRootInWindows(windowListRoots, WQ.WID_CHAT_PACKET_DIALOG_BUTTON);
+                if (rootNode == null) {
+                    WQ.needBacktoMessageList = true;
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            WQ.needBacktoMessageList = false;
+                        }
+                    }, 500);
+                }
+            }
+        }
 
         WonderLog.i(TAG, "onAccessibilityEvent eventType = " + eventType + "className = " + className);
 
@@ -70,13 +94,58 @@ public class WQAccessibilityService extends AccessibilityService {
                     // 联系人列表
                     CompatibleMode.dealWindowContentChanged(rootNode);
                 } else {
-                    HighSpeedMode.dealWindowContentChanged(className, rootNode);
+                    // HighSpeedMode.dealWindowContentChanged(className, rootNode);
                 }
                 break;
             }
             default:
                 break;
         }
+        if (rootNode != null) {
+            rootNode.recycle();
+        }
+    }
+
+    private ArrayList<AccessibilityNodeInfo> getCurrentWindows(AccessibilityEvent accessibilityEvent) {
+        ArrayList<AccessibilityNodeInfo> windowListRoots = new ArrayList<>();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            List<AccessibilityWindowInfo> windowList = getWindows();
+            if (windowList.size() > 0) {
+                for (AccessibilityWindowInfo window : windowList) {
+                    windowListRoots.add(window.getRoot());
+                }
+            }
+        } else {
+            AccessibilityNodeInfo windowSource = accessibilityEvent.getSource();
+            AccessibilityNodeInfo windowChild;
+            if (windowSource != null) {
+                for (int i = 0; i < windowSource.getChildCount(); i++) {
+                    windowChild = windowSource.getChild(i);
+                    windowListRoots.add(windowChild);
+                }
+            } else {
+                windowListRoots = null;
+            }
+        }
+        if (windowListRoots != null) {
+            WonderLog.i(TAG, "getCurrentWindows size = " + windowListRoots.size());
+        }
+        return windowListRoots;
+    }
+
+    private AccessibilityNodeInfo findRootInWindows(ArrayList<AccessibilityNodeInfo> windows, String ViewID) {
+        for (int i = 0; i < windows.size(); i++) {
+            if (windows.get(i) != null) {
+                List<AccessibilityNodeInfo> packetList = windows.get(i).findAccessibilityNodeInfosByViewId(ViewID);
+                if (!packetList.isEmpty()) {
+                    if (packetList.get(0).isClickable()) {
+                        return packetList.get(0);
+                    }
+                }
+            }
+        }
+        WonderLog.i(TAG, "findRootInWindows == null");
+        return null;
     }
 
     @Override
@@ -103,15 +172,4 @@ public class WQAccessibilityService extends AccessibilityService {
         return service;
     }
 
-    public static void toggleNotificationListenerService(Context context) {
-        WonderLog.e(TAG,"toggleNLS");
-        PackageManager pm = context.getPackageManager();
-        pm.setComponentEnabledSetting(
-                new ComponentName(context, WQNotificationService.class),
-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-
-        pm.setComponentEnabledSetting(
-                new ComponentName(context, WQNotificationService.class),
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-    }
 }
