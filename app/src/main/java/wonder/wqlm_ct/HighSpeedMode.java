@@ -22,6 +22,13 @@ public class HighSpeedMode {
         WonderLog.i(TAG, "dealWindowStateChanged");
         if (className.equals(WQ.WCN_LAUNCHER)) {
             // 聊天页面
+            if (WQ.backtoMessageListStatus == WQ.backtoMessageListReceiveUI) {
+                AccessibilityHelper.performBack(WQAccessibilityService.getService());
+                WQ.backtoMessageListStatus = WQ.backtoMessageListChatDialog;
+                return;
+            } else if (WQ.backtoMessageListStatus == WQ.backtoMessageListChatDialog) {
+                return;
+            }
             if (Config.isGotPacketSelf && WQ.currentSelfPacketStatus == WQ.W_openedPayStatus) {
                 WQ.setCurrentSelfPacketStatus(WQ.W_intoChatDialogStatus);
                 getPacket(rootNode, true);
@@ -32,8 +39,9 @@ public class HighSpeedMode {
             // 打开红包
             WonderLog.i(TAG, "dealWindowStateChanged 打开红包页面");
             if (Config.isGotPacketSelf && WQ.currentSelfPacketStatus == WQ.W_intoChatDialogStatus) {
-                openPacket(rootNode);
-                WQ.setCurrentSelfPacketStatus(WQ.W_gotSelfPacketStatus);
+                if (openPacket(rootNode)) {
+                    WQ.setCurrentSelfPacketStatus(WQ.W_gotSelfPacketStatus);
+                }
             } else {
                 if (openPacket(rootNode)) {
                     isGotPacket = true;
@@ -63,10 +71,12 @@ public class HighSpeedMode {
     public static void dealWindowContentChanged(String className, AccessibilityNodeInfo rootNode) {
         WonderLog.i(TAG, "dealWindowContentChanged");
 
-        if (WQ.needBacktoMessageList) {
+        if (WQ.backtoMessageListStatus == WQ.backtoMessageListChatDialog) {
             if (AccessibilityHelper.clickMessage(rootNode)) {
-                WQ.needBacktoMessageList = false;
+                WQ.backtoMessageListStatus = WQ.backtoMessageListOther;
             }
+            return;
+        } else if (WQ.backtoMessageListStatus >= WQ.backtoMessageListReceiveUI) {
             return;
         }
 
@@ -123,10 +133,18 @@ public class HighSpeedMode {
     }
 
     private static boolean openPacket(AccessibilityNodeInfo rootNode) {
-        if (rootNode == null) {
+        if (rootNode == null && WQ.backtoMessageListStatus == WQ.backtoMessageListOther) {
             AccessibilityHelper.performBack(WQAccessibilityService.getService());
-            AccessibilityHelper.performBack(WQAccessibilityService.getService());
+            WQ.backtoMessageListStatus = WQ.backtoMessageListReceiveUI;
             WonderLog.w(TAG, "openPacket == null");
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    WQ.backtoMessageListStatus = WQ.backtoMessageListOther;
+                }
+            }, 2000);
+            return false;
+        } else if (WQ.backtoMessageListStatus >= WQ.backtoMessageListReceiveUI) {
             return false;
         }
         boolean result = false;

@@ -36,31 +36,13 @@ public class WQAccessibilityService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
         int eventType = accessibilityEvent.getEventType();
         String className = accessibilityEvent.getClassName().toString();
-
         AccessibilityNodeInfo rootNode = getRootInActiveWindow();
-        ArrayList<AccessibilityNodeInfo> windowListRoots;
-        if (rootNode == null) {
-            WonderLog.i(TAG, "rootNode == null");
-            windowListRoots = getCurrentWindows(accessibilityEvent);
-            if (windowListRoots != null) {
-                rootNode = findRootInWindows(windowListRoots, WQ.WID_CHAT_PACKET_DIALOG_BUTTON);
-                if (rootNode == null) {
-                    WQ.needBacktoMessageList = true;
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            WQ.needBacktoMessageList = false;
-                        }
-                    }, 500);
-                }
-            }
-        }
 
         WonderLog.i(TAG, "onAccessibilityEvent eventType = " + eventType + "className = " + className);
 
         switch (eventType) {
             // 第一步：监听通知栏消息
-            case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED: {
+            /*case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED: {
                 if (WQ.isGotNotification) {
                     return;
                 }
@@ -73,7 +55,7 @@ public class WQAccessibilityService extends AccessibilityService {
                 AccessibilityHelper.openNotification(accessibilityEvent, WQ.WT_PACKET);
                 WQ.isGotNotification = false;
                 break;
-            }
+            }*/
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED: {
                 WonderLog.i(TAG, "窗口状态改变");
                 if (Config.runningMode == Config.compatibleMode) {
@@ -94,7 +76,7 @@ public class WQAccessibilityService extends AccessibilityService {
                     // 联系人列表
                     CompatibleMode.dealWindowContentChanged(rootNode);
                 } else {
-                    // HighSpeedMode.dealWindowContentChanged(className, rootNode);
+                    HighSpeedMode.dealWindowContentChanged(className, rootNode);
                 }
                 break;
             }

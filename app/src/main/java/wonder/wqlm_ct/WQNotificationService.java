@@ -45,7 +45,7 @@ public class WQNotificationService extends NotificationListenerService {
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
-        /*if (WQ.isGotNotification || WQ.isClickedNewMessageList
+        if (WQ.isGotNotification || WQ.isClickedNewMessageList
                 || WQ.isGotPacket) {
             // super.onNotificationPosted(sbn);
             WonderLog.i(TAG, "onNotificationPosted: return \n"
@@ -69,7 +69,7 @@ public class WQNotificationService extends NotificationListenerService {
         }
         if (AccessibilityHelper.openNotification(sbn, WQ.WECHAT_PACKAGE_NAME, WQ.WT_PACKET)) {
             // cancelNotification(sbn.getKey());
-        }*/
+        }
         // super.onNotificationPosted(sbn);
     }
 

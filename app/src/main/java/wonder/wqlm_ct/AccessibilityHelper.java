@@ -157,6 +157,7 @@ public final class AccessibilityHelper {
         if(service == null) {
             return;
         }
+        WonderLog.i(TAG, "performBack");
         service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
     }
 

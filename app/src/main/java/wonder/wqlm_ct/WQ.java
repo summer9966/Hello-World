@@ -106,7 +106,11 @@ public class WQ {
     public static boolean isGotNotification = false;
     public static boolean isClickedNewMessageList = false;
     public static boolean isGotPacket = false;
-    public static boolean needBacktoMessageList = false;
+
+    public static int backtoMessageListOther = 0;
+    public static int backtoMessageListReceiveUI = 1;
+    public static int backtoMessageListChatDialog = 2;
+    public static int backtoMessageListStatus = backtoMessageListOther;
 
     public static void setCurrentSelfPacketStatus(int status) {
         currentSelfPacketStatus = status;
