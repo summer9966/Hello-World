@@ -12,13 +12,21 @@ public class CompatibleMode {
 
     private final static String TAG = "CompatibleMode";
 
-    public static void dealWindowStateChanged(String className, AccessibilityNodeInfo rootNode) {
+    private Config config;
+
+    public CompatibleMode() {
+        if (config == null) {
+            config = Config.getConfig(WQAccessibilityService.getService());
+        }
+    }
+
+    public void dealWindowStateChanged(String className, AccessibilityNodeInfo rootNode) {
         if (rootNode == null) {
             return;
         }
         if (className.equals(WQ.WCN_LAUNCHER)) {
             // 聊天页面
-            if (Config.isGotPacketSelf && WQ.currentSelfPacketStatus == WQ.W_openedPayStatus) {
+            if (config.getIsGotPacketSelf() && WQ.currentSelfPacketStatus == WQ.W_openedPayStatus) {
                 WQ.setCurrentSelfPacketStatus(WQ.W_intoChatDialogStatus);
                 getSelfPacket(rootNode);
             } else {
@@ -26,7 +34,7 @@ public class CompatibleMode {
             }
         } else if (className.equals(WQ.WCN_PACKET_RECEIVE)) {
             // 打开红包
-            if (Config.isGotPacketSelf && WQ.currentSelfPacketStatus == WQ.W_intoChatDialogStatus) {
+            if (config.getIsGotPacketSelf() && WQ.currentSelfPacketStatus == WQ.W_intoChatDialogStatus) {
                 openPacket(rootNode);
                 WQ.setCurrentSelfPacketStatus(WQ.W_gotSelfPacketStatus);
             } else {

@@ -63,8 +63,10 @@ public class WQ {
     public final static String WID_CHAT_DIALOG_LISTVIEW = "com.tencent.mm:id/a_h";
     // 微信 聊天窗口 收到红包 可点击
     public final static String WID_CHAT_DIALOG_PACKET = "com.tencent.mm:id/ada";
-    // 微信 聊天窗口 收到红包 红包的文字 不可点击
+    // 微信 聊天窗口 收到红包 红包的文字（领取红包/查看红包） 不可点击
     public final static String WID_CHAT_DIALOG_PACKET_TEXT = "com.tencent.mm:id/aeb";
+    // 微信 聊天窗口 收到红包 红包的文字内容 不可点击
+    public final static String WID_CHAT_DIALOG_PACKET_CONTENT = "com.tencent.mm:id/aea";
     // 微信 聊天窗口 收到红包 XX领取了XX的红包
     public final static String WID_CHAT_DIALOG_HAD_OPEN_PACKET = "com.tencent.mm:id/j_";
 

@@ -3,6 +3,7 @@ package wonder.wqlm_ct;
 import android.os.Handler;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
@@ -15,6 +16,8 @@ import static java.lang.Thread.sleep;
 public class HighSpeedMode {
     private final static String TAG = "HighSpeedMode";
 
+    private Config config;
+
     private static boolean isGotPacket = false;
     private static Handler handler = new Handler();
     private EventScheduling eventScheduling;
@@ -22,6 +25,9 @@ public class HighSpeedMode {
     public HighSpeedMode() {
         if (eventScheduling == null) {
             eventScheduling = new EventScheduling();
+        }
+        if (config == null) {
+            config = Config.getConfig(WQAccessibilityService.getService());
         }
     }
 
@@ -36,7 +42,7 @@ public class HighSpeedMode {
             } else if (WQ.backtoMessageListStatus == WQ.backtoMessageListChatDialog) {
                 return;
             }
-            if (Config.isGotPacketSelf && WQ.currentSelfPacketStatus == WQ.W_openedPayStatus) {
+            if (config.getIsGotPacketSelf() && WQ.currentSelfPacketStatus == WQ.W_openedPayStatus) {
                 WQ.setCurrentSelfPacketStatus(WQ.W_intoChatDialogStatus);
                 getPacket(rootNode, true);
             } else {
@@ -45,7 +51,7 @@ public class HighSpeedMode {
         } else if (className.equals(WQ.WCN_PACKET_RECEIVE)) {
             // 打开红包
             WonderLog.i(TAG, "dealWindowStateChanged 打开红包页面");
-            if (Config.isGotPacketSelf && WQ.currentSelfPacketStatus == WQ.W_intoChatDialogStatus) {
+            if (config.getIsGotPacketSelf() && WQ.currentSelfPacketStatus == WQ.W_intoChatDialogStatus) {
                 if (openPacket(rootNode)) {
                     WQ.setCurrentSelfPacketStatus(WQ.W_gotSelfPacketStatus);
                 }
@@ -115,22 +121,32 @@ public class HighSpeedMode {
             return false;
         }
         boolean result = false;
-        List<AccessibilityNodeInfo> packetList = rootNode.findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_DIALOG_PACKET);
+        List<AccessibilityNodeInfo> packetList = rootNode
+                .findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_DIALOG_PACKET);
         if (!packetList.isEmpty()) {
             for (int i = packetList.size() - 1; i >= 0; i--) {
-                List<AccessibilityNodeInfo> packetTextList = packetList.get(i).findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_DIALOG_PACKET_TEXT);
+                List<AccessibilityNodeInfo> packetTextList = packetList
+                        .get(i).findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_DIALOG_PACKET_TEXT);
                 if (!packetTextList.isEmpty()) {
                     if (isSelfPacket) {
                         if (packetTextList.get(0).getText().toString().contains(WQ.WT_SEE_PACKET)) {
-                            // packetList.get(i).performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                            eventScheduling.addGetPacketList(packetList.get(i));
-                            result = true;
+                            if (config.getIsUsedKeyWords()) {
+                                result = isInKeyWordsMode(packetList, i);
+                            } else {
+                                // packetList.get(i).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                                eventScheduling.addGetPacketList(packetList.get(i));
+                                result = true;
+                            }
                         }
                     } else {
                         if (packetTextList.get(0).getText().toString().contains(WQ.WT_GET_PACKET)) {
-                            // packetList.get(i).performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                            eventScheduling.addGetPacketList(packetList.get(i));
-                            result = true;
+                            if (config.getIsUsedKeyWords()) {
+                                result = isInKeyWordsMode(packetList, i);
+                            } else {
+                                // packetList.get(i).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                                eventScheduling.addGetPacketList(packetList.get(i));
+                                result = true;
+                            }
                         }
                     }
                 }
@@ -166,6 +182,34 @@ public class HighSpeedMode {
             }
         }
         WonderLog.i(TAG, "openPacket result = " + result);
+        return result;
+    }
+
+    private boolean isInKeyWordsMode(List<AccessibilityNodeInfo> nodeInfos, int index) {
+        List<AccessibilityNodeInfo> packetContentList = nodeInfos.get(index)
+                .findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_DIALOG_PACKET_CONTENT);
+        if (!packetContentList.isEmpty()) {
+            if (!isContainKeyWords(config.getPacketKeyWords(),
+                    packetContentList.get(0).getText().toString())) {
+                // packetList.get(i).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                eventScheduling.addGetPacketList(nodeInfos.get(index));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isContainKeyWords(String keyWords, String content) {
+        boolean result = false;
+        String[] arrayListKeyWords = keyWords.split("、");
+        for (String keyWord : arrayListKeyWords) {
+            WonderLog.i(TAG, "isContainKeyWords keyWord = " + keyWord);
+            if (content.contains(keyWord)) {
+                result = true;
+                break;
+            }
+        }
+        WonderLog.i(TAG, "isContainKeyWords result = " + result);
         return result;
     }
 

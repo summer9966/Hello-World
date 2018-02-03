@@ -26,6 +26,8 @@ public class WQAccessibilityService extends AccessibilityService {
     private static Handler handler = new Handler();
 
     private HighSpeedMode highSpeedMode;
+    private CompatibleMode compatibleMode;
+    private Config config;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -37,6 +39,12 @@ public class WQAccessibilityService extends AccessibilityService {
     private void initObj() {
         if (highSpeedMode == null) {
             highSpeedMode = new HighSpeedMode();
+        }
+        if (compatibleMode == null){
+            compatibleMode = new CompatibleMode();
+        }
+        if (config == null) {
+            config = Config.getConfig(getService());
         }
     }
 
@@ -66,8 +74,8 @@ public class WQAccessibilityService extends AccessibilityService {
             }*/
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED: {
                 WonderLog.i(TAG, "窗口状态改变");
-                if (Config.runningMode == Config.compatibleMode) {
-                    CompatibleMode.dealWindowStateChanged(className, rootNode);
+                if (config.getRunningMode() == Config.compatibleMode) {
+                    compatibleMode.dealWindowStateChanged(className, rootNode);
                 } else {
                     highSpeedMode.dealWindowStateChanged(className, rootNode);
                 }
@@ -80,9 +88,9 @@ public class WQAccessibilityService extends AccessibilityService {
             }
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED: {
                 // WonderLog.i(TAG, "窗口内容变化");
-                if (Config.runningMode == Config.compatibleMode) {
+                if (config.getRunningMode() == Config.compatibleMode) {
                     // 联系人列表
-                    CompatibleMode.dealWindowContentChanged(rootNode);
+                    compatibleMode.dealWindowContentChanged(rootNode);
                 } else {
                     highSpeedMode.dealWindowContentChanged(className, rootNode);
                 }

@@ -16,6 +16,8 @@ import java.util.Random;
 public class EventScheduling {
     private final static String TAG = "EventScheduling";
 
+    private Config config;
+
     private ArrayList<AccessibilityNodeInfo> getPacketList;
     private ArrayList<AccessibilityNodeInfo> openPacketList;
 
@@ -32,36 +34,41 @@ public class EventScheduling {
         if (openPacketList == null) {
             openPacketList = new ArrayList<>();
         }
+        if (config == null) {
+            config = Config.getConfig(WQAccessibilityService.getService());
+        }
         initBackThread();
     }
 
     public void addGetPacketList(AccessibilityNodeInfo nodeInfo) {
-        WonderLog.i(TAG, "addGetPacketList delayedTime = " + Config.delayedTime);
+        int delayedTime = config.getDelayedTime();
+        WonderLog.i(TAG, "addGetPacketList delayedTime = " + delayedTime);
         if (getPacketList != null) {
             if (getPacketList.size() == 0) {
                 WonderLog.i(TAG, nodeInfo.toString());
                 getPacketList.add(nodeInfo);
-                sendHandlerMessage(msgGetPacket, calculateDelayedTime(Config.delayedTime));
+                sendHandlerMessage(msgGetPacket, calculateDelayedTime(delayedTime));
             } else {
                 if (!isHasSameNodeInfo(nodeInfo, getPacketList)) {
                     WonderLog.i(TAG, nodeInfo.toString());
                     getPacketList.add(nodeInfo);
-                    sendHandlerMessage(msgGetPacket, calculateDelayedTime(Config.delayedTime));
+                    sendHandlerMessage(msgGetPacket, calculateDelayedTime(delayedTime));
                 }
             }
         }
     }
 
     public void addOpenPacketList(AccessibilityNodeInfo nodeInfo) {
-        WonderLog.i(TAG, "addOpenPacketList delayedTime = " + Config.delayedTime);
+        int delayedTime = config.getDelayedTime();
+        WonderLog.i(TAG, "addOpenPacketList delayedTime = " + delayedTime);
         if (openPacketList != null) {
             if (openPacketList.size() == 0) {
                 openPacketList.add(nodeInfo);
-                sendHandlerMessage(msgOpenPacket, calculateDelayedTime(Config.delayedTime));
+                sendHandlerMessage(msgOpenPacket, calculateDelayedTime(delayedTime));
             } else {
                 if (nodeInfo != openPacketList.get(getLastIndex(openPacketList))) {
                     openPacketList.add(nodeInfo);
-                    sendHandlerMessage(msgOpenPacket, calculateDelayedTime(Config.delayedTime));
+                    sendHandlerMessage(msgOpenPacket, calculateDelayedTime(delayedTime));
                 }
             }
         }
@@ -156,13 +163,12 @@ public class EventScheduling {
 
     private int calculateDelayedTime(int delayedTime) {
         int time;
-        if (Config.isUsedDelayed) {
-            if (Config.isUsedRandomDelayed) {
-                // 除以2，是因为分别在聊天界面和红包拆开界面分别延时
-                time = generateRandomNum(delayedTime) / 2;
-            } else {
-                time = delayedTime / 2;
-            }
+        boolean isUsedDelayed = config.getIsUsedDelayed();
+        boolean isUsedRandomDelayed = config.getIsUsedRandomDelayed();
+        if (isUsedDelayed) {
+            time = delayedTime / 2;         // 除以2，是因为分别在聊天界面和红包拆开界面分别延时
+        } else if (isUsedRandomDelayed) {
+            time = generateRandomNum(delayedTime) / 2;
         } else {
             // 不延时
             time = 0;

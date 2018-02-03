@@ -16,9 +16,11 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = "MainActivity";
 
+    private Config config;
+
     private CheckBox cb_modeChoice, cb_notification, cb_accessibility;
     private CheckBox cb_getPacketSelf, cb_usedDelayed, cb_usedRandomDelayed, cb_useKeyWords;
-    private EditText et_delayedTime;
+    private EditText et_delayedTime, et_keyWords;
     private Button bt_test;
 
     @Override
@@ -38,16 +40,18 @@ public class MainActivity extends AppCompatActivity {
         cb_usedRandomDelayed = findViewById(R.id.cb_usedRandomDelayed);
         cb_useKeyWords = findViewById(R.id.cb_usedKeyWords);
         et_delayedTime = findViewById(R.id.et_delayedTime);
+        et_keyWords = findViewById(R.id.et_keyWords);
         bt_test = findViewById(R.id.bt_test);
 
+        if (config == null) {
+            config = Config.getConfig(MainActivity.this);
+        }
         initViewState();
         setClickListener();
-        setCheckedListener();
     }
 
     private void initViewState() {
-        Config.getAllConfig(MainActivity.this);
-        if (Config.runningMode == Config.compatibleMode) {
+        if (config.getRunningMode() == Config.compatibleMode) {
             cb_modeChoice.setChecked(true);
         } else {
             cb_modeChoice.setChecked(false);
@@ -64,22 +68,28 @@ public class MainActivity extends AppCompatActivity {
         } else {
             cb_accessibility.setChecked(false);
         }
-        if (Config.isGotPacketSelf) {
+        if (config.getIsGotPacketSelf()) {
             cb_getPacketSelf.setChecked(true);
         } else {
             cb_getPacketSelf.setChecked(false);
         }
-        if (Config.isUsedDelayed) {
+        if (config.getIsUsedDelayed()) {
             cb_usedDelayed.setChecked(true);
         } else {
             cb_usedDelayed.setChecked(false);
         }
-        if (Config.isUsedRandomDelayed) {
+        if (config.getIsUsedRandomDelayed()) {
             cb_usedRandomDelayed.setChecked(true);
         } else {
             cb_usedRandomDelayed.setChecked(false);
         }
-        et_delayedTime.setText(String.valueOf(Config.delayedTime));
+        if (config.getIsUsedKeyWords()) {
+            cb_useKeyWords.setChecked(true);
+        } else {
+            cb_useKeyWords.setChecked(false);
+        }
+        et_delayedTime.setText(String.valueOf(config.getDelayedTime()));
+        et_keyWords.setText(config.getPacketKeyWords());
     }
 
     private void setClickListener() {
@@ -87,9 +97,57 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (cb_modeChoice.isChecked()) {
-                    Config.runningMode = Config.compatibleMode;
+                    config.saveRunningMode(Config.compatibleMode);
                 } else {
-                    Config.runningMode = Config.highSpeedMode;
+                    config.saveRunningMode(Config.highSpeedMode);
+                }
+            }
+        });
+        cb_getPacketSelf.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (cb_getPacketSelf.isChecked()) {
+                    config.saveIsGotPacketSelf(true);
+                } else {
+                    config.saveIsGotPacketSelf(false);
+                }
+            }
+        });
+        cb_usedDelayed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (cb_usedDelayed.isChecked()) {
+                    config.saveIsUsedDelayed(true);
+                    if (cb_usedRandomDelayed.isChecked()) {
+                        cb_usedRandomDelayed.setChecked(false);
+                        config.saveIsUsedRandomDelayed(false);
+                    }
+                } else {
+                    config.saveIsUsedDelayed(false);
+                }
+            }
+        });
+        cb_usedRandomDelayed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (cb_usedRandomDelayed.isChecked()) {
+                    config.saveIsUsedRandomDelayed(true);
+                    if (cb_usedDelayed.isChecked()) {
+                        cb_usedDelayed.setChecked(false);
+                        config.saveIsUsedDelayed(false);
+                    }
+                } else {
+                    config.saveIsUsedRandomDelayed(false);
+                }
+            }
+        });
+        cb_useKeyWords.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (cb_useKeyWords.isChecked()) {
+                    config.saveIsUsedKeyWords(true);
+                } else {
+                    config.saveIsUsedKeyWords(false);
                 }
             }
         });
@@ -120,51 +178,18 @@ public class MainActivity extends AppCompatActivity {
         bt_test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                WQNotificationService.restarNotificationListenerService(getApplication());
-            }
-        });
-    }
-
-    private void setCheckedListener() {
-        cb_getPacketSelf.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    Config.isGotPacketSelf = true;
-                } else {
-                    Config.isGotPacketSelf = false;
-                }
-                Config.saveAllConfig(MainActivity.this);
-            }
-        });
-        cb_usedDelayed.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    Config.isUsedDelayed = true;
-                } else {
-                    Config.isUsedDelayed = false;
-                }
-                Config.saveAllConfig(MainActivity.this);
-            }
-        });
-        cb_usedRandomDelayed.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    Config.isUsedRandomDelayed = true;
-                } else {
-                    Config.isUsedRandomDelayed = false;
-                }
-                Config.saveAllConfig(MainActivity.this);
+                // WQNotificationService.restarNotificationListenerService(getApplication());
             }
         });
     }
 
     private void getEditTextContent() {
-        Config.delayedTime = Integer.parseInt(et_delayedTime.getText().toString());
-        WonderLog.i(TAG, "getEditTextContent delayTime = " + Config.delayedTime);
-        Config.saveAllConfig(MainActivity.this);
+        int delayedTime = Integer.parseInt(et_delayedTime.getText().toString());
+        String packetKeyWords = et_keyWords.getText().toString();
+        WonderLog.i(TAG, "getEditTextContent delayTime = " + delayedTime
+                + "keyWords = " + packetKeyWords);
+        config.savePacketKeyWords(packetKeyWords);
+        config.saveDelayedTime(delayedTime);
     }
 
     @Override
