@@ -27,7 +27,7 @@ public class WQNotificationService extends NotificationListenerService {
     @Override
     public void onListenerConnected() {
         WonderLog.i(TAG, "onListenerConnected");
-        Toast.makeText(this, "Hello World 2号 服务已连接", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Hello World 通知监听 服务已连接", Toast.LENGTH_LONG).show();
 
         if (wqNotificationService == null) {
             wqNotificationService = this;
@@ -38,7 +38,7 @@ public class WQNotificationService extends NotificationListenerService {
     @Override
     public void onListenerDisconnected() {
         WonderLog.i(TAG, "onListenerDisconnected");
-        Toast.makeText(this, "Hello World 2号 服务已断开", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Hello World 通知监听 服务已断开", Toast.LENGTH_LONG).show();
         wqNotificationService = null;
         super.onListenerDisconnected();
     }

@@ -10,13 +10,14 @@
         android:id="@+id/textView"
         android:layout_width="354dp"
         android:layout_height="187dp"
-        android:layout_marginBottom="36dp"
+        android:layout_marginBottom="16dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
         android:text="@string/main_activity_descr"
         android:textSize="14dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -24,53 +25,138 @@
         android:id="@+id/cb_modeChoice"
         android:layout_width="110dp"
         android:layout_height="40dp"
+        android:layout_marginEnd="36dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text="兼容模式"
         android:textSize="16dp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <CheckBox
         android:id="@+id/cb_notification"
         android:layout_width="110dp"
         android:layout_height="40dp"
+        android:layout_marginEnd="36dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:text="通知监听"
         android:textSize="16dp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cb_modeChoice" />
+        app:layout_constraintTop_toBottomOf="@+id/cb_accessibility" />
 
     <CheckBox
         android:id="@+id/cb_accessibility"
         android:layout_width="109dp"
         android:layout_height="40dp"
+        android:layout_marginEnd="36dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:text="模拟操作"
         android:textSize="16dp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cb_notification" />
+        app:layout_constraintTop_toBottomOf="@+id/cb_modeChoice" />
 
     <Button
-        android:id="@+id/bt_serviceRestart"
+        android:id="@+id/bt_test"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:text="测试按钮"
+        android:textSize="16dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cb_usedKeyWords" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="180dp" />
+
+    <CheckBox
+        android:id="@+id/cb_usedDelayed"
+        android:layout_width="110dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:text="固定延时"
+        android:textSize="16dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cb_notification" />
+
+    <CheckBox
+        android:id="@+id/cb_usedRandomDelayed"
+        android:layout_width="110dp"
+        android:layout_height="40dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="96dp"
-        android:text="服务重开"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.545"
-        app:layout_constraintStart_toEndOf="@+id/cb_notification"
+        android:layout_marginTop="160dp"
+        android:text="随机延时"
+        android:textSize="16dp"
+        app:layout_constraintEnd_toStartOf="@+id/et_delayedTime"
+        app:layout_constraintHorizontal_bias="0.647"
+        app:layout_constraintStart_toEndOf="@+id/cb_usedDelayed"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/et_delayedTime"
+        android:layout_width="75dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="104dp"
+        android:ems="10"
+        android:hint="100"
+        android:inputType="number"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cb_getPacketSelf" />
+
+    <CheckBox
+        android:id="@+id/cb_getPacketSelf"
+        android:layout_width="110dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="104dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:text="抢自己发"
+        android:textSize="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckBox
+        android:id="@+id/cb_usedKeyWords"
+        android:layout_width="122dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:text="过滤关键字"
+        android:textSize="16dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cb_usedDelayed" />
+
+    <EditText
+        android:id="@+id/et_keyWords"
+        android:layout_width="184dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="152dp"
+        android:ems="10"
+        android:inputType="textMultiLine"
+        android:textSize="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/cb_usedKeyWords"
+        app:layout_constraintTop_toBottomOf="@+id/cb_getPacketSelf" />
 
 
 </android.support.constraint.ConstraintLayout>

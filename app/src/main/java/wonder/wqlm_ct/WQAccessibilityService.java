@@ -25,11 +25,19 @@ public class WQAccessibilityService extends AccessibilityService {
     private static WQAccessibilityService service;
     private static Handler handler = new Handler();
 
+    private HighSpeedMode highSpeedMode;
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // flags = START_FLAG_RETRY;
         return START_STICKY;
         // return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void initObj() {
+        if (highSpeedMode == null) {
+            highSpeedMode = new HighSpeedMode();
+        }
     }
 
     @Override
@@ -61,7 +69,7 @@ public class WQAccessibilityService extends AccessibilityService {
                 if (Config.runningMode == Config.compatibleMode) {
                     CompatibleMode.dealWindowStateChanged(className, rootNode);
                 } else {
-                    HighSpeedMode.dealWindowStateChanged(className, rootNode);
+                    highSpeedMode.dealWindowStateChanged(className, rootNode);
                 }
                 /*if (WQ.isPreviouslyLockScreen && WQ.currentAutoPacketStatus == WQ.W_rebackUIStatus) {
                     WQ.isPreviouslyLockScreen = false;
@@ -76,7 +84,7 @@ public class WQAccessibilityService extends AccessibilityService {
                     // 联系人列表
                     CompatibleMode.dealWindowContentChanged(rootNode);
                 } else {
-                    HighSpeedMode.dealWindowContentChanged(className, rootNode);
+                    highSpeedMode.dealWindowContentChanged(className, rootNode);
                 }
                 break;
             }
@@ -133,14 +141,15 @@ public class WQAccessibilityService extends AccessibilityService {
     @Override
     public void onInterrupt() {
         WonderLog.i(TAG, "onInterrupt");
-        Toast.makeText(this, "Hello World 1号 服务被中断", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Hello World 模拟操作 服务被中断", Toast.LENGTH_LONG).show();
     }
 
     @Override
     protected void onServiceConnected() {
         WonderLog.i(TAG, "onServiceConnected");
-        Toast.makeText(this, "Hello World 1号 服务已连接", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Hello World 模拟操作 服务已连接", Toast.LENGTH_LONG).show();
         service = this;
+        initObj();
         super.onServiceConnected();
     }
 

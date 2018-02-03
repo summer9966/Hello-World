@@ -17,8 +17,15 @@ public class HighSpeedMode {
 
     private static boolean isGotPacket = false;
     private static Handler handler = new Handler();
+    private EventScheduling eventScheduling;
 
-    public static void dealWindowStateChanged(String className, final AccessibilityNodeInfo rootNode) {
+    public HighSpeedMode() {
+        if (eventScheduling == null) {
+            eventScheduling = new EventScheduling();
+        }
+    }
+
+    public void dealWindowStateChanged(String className, final AccessibilityNodeInfo rootNode) {
         WonderLog.i(TAG, "dealWindowStateChanged");
         if (className.equals(WQ.WCN_LAUNCHER)) {
             // 聊天页面
@@ -68,9 +75,8 @@ public class HighSpeedMode {
         }
     }
 
-    public static void dealWindowContentChanged(String className, AccessibilityNodeInfo rootNode) {
+    public void dealWindowContentChanged(String className, AccessibilityNodeInfo rootNode) {
         WonderLog.i(TAG, "dealWindowContentChanged");
-
         if (WQ.backtoMessageListStatus == WQ.backtoMessageListChatDialog) {
             if (AccessibilityHelper.clickMessage(rootNode)) {
                 WQ.backtoMessageListStatus = WQ.backtoMessageListOther;
@@ -103,7 +109,7 @@ public class HighSpeedMode {
 
     }
 
-    private static boolean getPacket(AccessibilityNodeInfo rootNode, boolean isSelfPacket) {
+    private boolean getPacket(AccessibilityNodeInfo rootNode, boolean isSelfPacket) {
         if (rootNode == null) {
             WonderLog.i(TAG, "getPacket rootNode == null");
             return false;
@@ -116,12 +122,14 @@ public class HighSpeedMode {
                 if (!packetTextList.isEmpty()) {
                     if (isSelfPacket) {
                         if (packetTextList.get(0).getText().toString().contains(WQ.WT_SEE_PACKET)) {
-                            packetList.get(i).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                            // packetList.get(i).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                            eventScheduling.addGetPacketList(packetList.get(i));
                             result = true;
                         }
                     } else {
                         if (packetTextList.get(0).getText().toString().contains(WQ.WT_GET_PACKET)) {
-                            packetList.get(i).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                            // packetList.get(i).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                            eventScheduling.addGetPacketList(packetList.get(i));
                             result = true;
                         }
                     }
@@ -132,7 +140,7 @@ public class HighSpeedMode {
         return result;
     }
 
-    private static boolean openPacket(AccessibilityNodeInfo rootNode) {
+    private boolean openPacket(AccessibilityNodeInfo rootNode) {
         if (rootNode == null && WQ.backtoMessageListStatus == WQ.backtoMessageListOther) {
             AccessibilityHelper.performBack(WQAccessibilityService.getService());
             WQ.backtoMessageListStatus = WQ.backtoMessageListReceiveUI;
@@ -152,7 +160,8 @@ public class HighSpeedMode {
         if (!packetList.isEmpty()) {
             AccessibilityNodeInfo item = packetList.get(0);
             if (item.isClickable()) {
-                item.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                // item.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                eventScheduling.addOpenPacketList(item);
                 result = true;
             }
         }
