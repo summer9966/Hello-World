@@ -1,5 +1,6 @@
 package wonder.wqlm_ct;
 
+import android.os.Handler;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.List;
@@ -12,9 +13,16 @@ public class CompatibleMode {
 
     private final static String TAG = "CompatibleMode";
 
+    private EventScheduling eventScheduling;
     private Config config;
 
+    private static boolean isGotPacket = false;
+    private static Handler handler = new Handler();
+
     public CompatibleMode() {
+        if (eventScheduling == null) {
+            eventScheduling = new EventScheduling();
+        }
         if (config == null) {
             config = Config.getConfig(WQAccessibilityService.getService());
         }
@@ -28,9 +36,9 @@ public class CompatibleMode {
             // 聊天页面
             if (config.getIsGotPacketSelf() && WQ.currentSelfPacketStatus == WQ.W_openedPayStatus) {
                 WQ.setCurrentSelfPacketStatus(WQ.W_intoChatDialogStatus);
-                getSelfPacket(rootNode);
+                getPacket(rootNode, true);
             } else {
-                getPacket(rootNode);
+                getPacket(rootNode, false);
             }
         } else if (className.equals(WQ.WCN_PACKET_RECEIVE)) {
             // 打开红包
@@ -38,7 +46,9 @@ public class CompatibleMode {
                 openPacket(rootNode);
                 WQ.setCurrentSelfPacketStatus(WQ.W_gotSelfPacketStatus);
             } else {
-                openPacket(rootNode);
+                if (openPacket(rootNode)) {
+                    isGotPacket = true;
+                }
             }
         } else if (className.equals(WQ.WCN_PACKET_SEND)) {
             WQ.setCurrentSelfPacketStatus(WQ.W_openedPacketSendStatus);
@@ -51,96 +61,67 @@ public class CompatibleMode {
                 AccessibilityHelper.performBack(WQAccessibilityService.getService());
                 WQ.setCurrentSelfPacketStatus(WQ.W_otherStatus);
             }
+            if (isGotPacket) {
+                AccessibilityHelper.performBack(WQAccessibilityService.getService());
+                isGotPacket = false;
+            }
         }
     }
 
-    public static void dealWindowContentChanged(AccessibilityNodeInfo rooNode) {
-        dealChatListAndWindow(rooNode);
-    }
-
-    private static boolean openPacket(AccessibilityNodeInfo rootNode) {
-        WonderLog.i(TAG, "openPacket!");
-        clickAllView(rootNode);
-        return true;
-    }
-
-    private static boolean getPacket(AccessibilityNodeInfo rootNode) {
-        return inputClickByText(rootNode, WQ.WT_GET_PACKET);
-    }
-
-    private static void dealChatListAndWindow(AccessibilityNodeInfo rootNode) {
-        WonderLog.i(TAG, "dealChatListAndWindow");
+    public void dealWindowContentChanged(AccessibilityNodeInfo rootNode) {
+        WonderLog.i(TAG, "dealWindowContentChanged");
         if (rootNode == null) {
             return;
         }
-        if (getPacket(rootNode)) {
+        if (getPacket(rootNode, false)) {
+            WQ.isGotPacket = true;
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    WQ.isGotPacket = false;
+                }
+            }, 500);
             return;
         }
-        // inputClickByViewIDAndText(rootNode, WQ.WID_CHAT_LIST_MESSAGE_TEXT, WQ.WT_PACKET);
-        // inputClickByViewIDAndText(rootNode, WQ.WID_CHAT_LIST_MESSAGE_NUM, WQ.WT_PACKET);
-        // inputClickByViewIDAndText(rootNode, WQ.WID_CHAT_LIST_MESSAGE_POT, WQ.WT_PACKET);
-        AccessibilityHelper.clickNewMessage(rootNode);
+        // AccessibilityHelper.clickNewMessage(rootNode);
     }
 
-    private static boolean inputClickByText(AccessibilityNodeInfo rootNode, String content) {
-        WonderLog.i(TAG, "inputClickByText! Text = " + content);
+    private boolean openPacket(AccessibilityNodeInfo rootNode) {
+        WonderLog.i(TAG, "openPacket! " + rootNode.toString());
+
+        List<AccessibilityNodeInfo> nodeInfos = rootNode
+                .findAccessibilityNodeInfosByText(WQ.WT_OPEN_SEND_A_PACKET);
+        if (!nodeInfos.isEmpty()) {
+            AccessibilityNodeInfo parent = nodeInfos.get(0).getParent();
+            for (int i = 0; i < parent.getChildCount(); i++) {
+                AccessibilityNodeInfo nodeInfo = parent.getChild(i);
+                if (nodeInfo.isClickable()) {
+                    eventScheduling.addOpenPacketList(nodeInfo);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean getPacket(AccessibilityNodeInfo rootNode, boolean isSelfPacket) {
+        WonderLog.i(TAG, "getPacket");
         boolean result = false;
         if (rootNode != null) {
-            List<AccessibilityNodeInfo> nodeInfoList = rootNode.findAccessibilityNodeInfosByText(content);
+            List<AccessibilityNodeInfo> nodeInfoList;
+            if (isSelfPacket) {
+                nodeInfoList = rootNode.findAccessibilityNodeInfosByText(WQ.WT_SEE_PACKET);
+            } else {
+                nodeInfoList = rootNode.findAccessibilityNodeInfosByText(WQ.WT_GET_PACKET);
+            }
             if (!nodeInfoList.isEmpty()) {
-                AccessibilityNodeInfo item;
                 for (int i = nodeInfoList.size() - 1; i >= 0; i--) {
-                    item = nodeInfoList.get(i);
-                    AccessibilityHelper.performClick(item);
+                    // AccessibilityHelper.performClick(nodeInfoList.get(i));
+                    eventScheduling.addGetPacketList(nodeInfoList.get(i));
                     result = true;
                 }
             }
         }
         return result;
-    }
-
-    private static void clickAllView(AccessibilityNodeInfo nodeInfo) {
-        WonderLog.i(TAG, "clickAllView!");
-        if (nodeInfo.getChildCount() == 0) {
-            if (AccessibilityHelper.performClick(nodeInfo)) {
-                return;
-            }
-        } else {
-            for (int i = 0; i < nodeInfo.getChildCount(); i++) {
-                if (nodeInfo.getChild(i)!= null) {
-                    clickAllView(nodeInfo.getChild(i));
-                }
-            }
-        }
-    }
-
-    private static void inputClickByViewIDAndText(AccessibilityNodeInfo nodeInfo, String viewID, String text) {
-        WonderLog.i(TAG, "inputClickByViewIDAndText viewID = " + viewID + " text = " + text);
-        if (nodeInfo != null) {
-            List<AccessibilityNodeInfo> nodeInfoList = nodeInfo.findAccessibilityNodeInfosByViewId(viewID);
-            if (!nodeInfoList.isEmpty()) {
-                for (AccessibilityNodeInfo item : nodeInfoList) {
-                    WonderLog.i(TAG, "inputClickByViewIDAndText nodeInfoList = " + item.getText().toString());
-                    if (item.getText().toString().contains(text)) {
-                        AccessibilityHelper.performClick(item);
-                    }
-                }
-            }
-        }
-    }
-
-    private static void getSelfPacket(AccessibilityNodeInfo rootNode) {
-        WonderLog.i(TAG, "getSelfPacket");
-        if (rootNode == null) {
-            return;
-        }
-        List<AccessibilityNodeInfo> packetList = rootNode.findAccessibilityNodeInfosByText(WQ.WT_SEE_PACKET);
-        if (!packetList.isEmpty()) {
-            AccessibilityNodeInfo item;
-            for (int i = packetList.size() - 1; i >= 0; i--) {
-                item = packetList.get(i);
-                AccessibilityHelper.performClick(item);
-            }
-        }
     }
 }

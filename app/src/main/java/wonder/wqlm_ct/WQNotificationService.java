@@ -45,9 +45,7 @@ public class WQNotificationService extends NotificationListenerService {
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
-        if (WQ.isGotNotification || WQ.isClickedNewMessageList
-                || WQ.isGotPacket) {
-            // super.onNotificationPosted(sbn);
+        if (WQ.isGotNotification || WQ.isClickedNewMessageList || WQ.isGotPacket) {
             WonderLog.i(TAG, "onNotificationPosted: return \n"
                     + "WQ.isGotNotification = " + WQ.isGotNotification
             + "WQ.isClickedNewMessageList = " + WQ.isClickedNewMessageList
@@ -56,27 +54,25 @@ public class WQNotificationService extends NotificationListenerService {
         }
         WonderLog.i(TAG, "onNotificationPosted: " + sbn.getPackageName().toString()
                 + " " + sbn.getNotification().extras.getString(Notification.EXTRA_TEXT));
-        WQ.isGotNotification = true;
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                WQ.isGotNotification = false;
-            }
-        }, 500);
         if (Tools.isLockScreen(this.getApplication())) {
             Tools.wakeAndUnlock(this.getApplication());
             WQ.isPreviouslyLockScreen = true;
         }
         if (AccessibilityHelper.openNotification(sbn, WQ.WECHAT_PACKAGE_NAME, WQ.WT_PACKET)) {
-            // cancelNotification(sbn.getKey());
+            // WQ.isGotNotification = true;
+            /* handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    WQ.isGotNotification = false;
+                }
+            }, 500); */
         }
-        // super.onNotificationPosted(sbn);
     }
 
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
         WonderLog.i(TAG, "onNotificationRemoved: " + sbn.toString());
-        WQ.isGotNotification = false;
+        // WQ.isGotNotification = false;
         // super.onNotificationRemoved(sbn);
     }
 

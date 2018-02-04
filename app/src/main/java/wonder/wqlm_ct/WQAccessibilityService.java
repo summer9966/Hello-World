@@ -104,12 +104,13 @@ public class WQAccessibilityService extends AccessibilityService {
         }
     }
 
-    private ArrayList<AccessibilityNodeInfo> getCurrentWindows(AccessibilityEvent accessibilityEvent) {
+    private AccessibilityNodeInfo getCurrentWindows(AccessibilityEvent accessibilityEvent) {
         ArrayList<AccessibilityNodeInfo> windowListRoots = new ArrayList<>();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             List<AccessibilityWindowInfo> windowList = getWindows();
             if (windowList.size() > 0) {
                 for (AccessibilityWindowInfo window : windowList) {
+                    WonderLog.i(TAG, "getCurrentWindows " + window.toString());
                     windowListRoots.add(window.getRoot());
                 }
             }
@@ -128,7 +129,11 @@ public class WQAccessibilityService extends AccessibilityService {
         if (windowListRoots != null) {
             WonderLog.i(TAG, "getCurrentWindows size = " + windowListRoots.size());
         }
-        return windowListRoots;
+        if (windowListRoots.size() > 0) {
+            return windowListRoots.get(windowListRoots.size() - 1);
+        } else {
+            return null;
+        }
     }
 
     private AccessibilityNodeInfo findRootInWindows(ArrayList<AccessibilityNodeInfo> windows, String ViewID) {

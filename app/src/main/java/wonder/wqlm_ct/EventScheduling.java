@@ -45,12 +45,12 @@ public class EventScheduling {
         WonderLog.i(TAG, "addGetPacketList delayedTime = " + delayedTime);
         if (getPacketList != null) {
             if (getPacketList.size() == 0) {
-                WonderLog.i(TAG, nodeInfo.toString());
+                WonderLog.i(TAG, "addGetPacketList " + nodeInfo.toString());
                 getPacketList.add(nodeInfo);
                 sendHandlerMessage(msgGetPacket, calculateDelayedTime(delayedTime));
             } else {
                 if (!isHasSameNodeInfo(nodeInfo, getPacketList)) {
-                    WonderLog.i(TAG, nodeInfo.toString());
+                    WonderLog.i(TAG, "addGetPacketList " + nodeInfo.toString());
                     getPacketList.add(nodeInfo);
                     sendHandlerMessage(msgGetPacket, calculateDelayedTime(delayedTime));
                 }
@@ -63,10 +63,12 @@ public class EventScheduling {
         WonderLog.i(TAG, "addOpenPacketList delayedTime = " + delayedTime);
         if (openPacketList != null) {
             if (openPacketList.size() == 0) {
+                WonderLog.i(TAG, "addOpenPacketList " + nodeInfo.toString());
                 openPacketList.add(nodeInfo);
                 sendHandlerMessage(msgOpenPacket, calculateDelayedTime(delayedTime));
             } else {
-                if (nodeInfo != openPacketList.get(getLastIndex(openPacketList))) {
+                if (!isHasSameNodeInfo(nodeInfo, openPacketList)) {
+                    WonderLog.i(TAG, "addOpenPacketList " + nodeInfo.toString());
                     openPacketList.add(nodeInfo);
                     sendHandlerMessage(msgOpenPacket, calculateDelayedTime(delayedTime));
                 }
@@ -109,10 +111,16 @@ public class EventScheduling {
 
     private boolean isHasSameNodeInfo(AccessibilityNodeInfo nodeInfo,
                                       ArrayList<AccessibilityNodeInfo> nodeInfos) {
-        Rect rect = getRectFromNodeInfo(nodeInfo);
         boolean result = false;
-        for (int i = 0; i < nodeInfos.size(); i++) {
+        // Rect rect = getRectFromNodeInfo(nodeInfo);
+        /*for (int i = 0; i < nodeInfos.size(); i++) {
             if (rect.equals(getRectFromNodeInfo(nodeInfos.get(i)))) {
+                result = true;
+                break;
+            }
+        }*/
+        for (int i = 0; i < nodeInfos.size(); i++) {
+            if (nodeInfo.equals(nodeInfos.get(i))) {
                 result = true;
                 break;
             }
@@ -141,15 +149,15 @@ public class EventScheduling {
                 switch (msg.what) {
                     case msgGetPacket:
                         if (isSafeToArrayList(getPacketList)) {
-                            getPacketList.get(getLastIndex(getPacketList))
-                                    .performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                            AccessibilityHelper.performClick(getPacketList
+                                    .get(getLastIndex(getPacketList)));
                             removeLastGetPacketList();
                         }
                         break;
                     case msgOpenPacket:
                         if (isSafeToArrayList(openPacketList)) {
-                            openPacketList.get(getLastIndex(openPacketList))
-                                    .performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                            AccessibilityHelper.performClick(openPacketList
+                                        .get(getLastIndex(openPacketList)));
                             removeLastOpenPacketList();
                         }
                         break;

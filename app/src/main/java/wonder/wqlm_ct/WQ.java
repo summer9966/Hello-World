@@ -32,6 +32,9 @@ public class WQ {
     // 微信 红包详情
     public final static String WCN_PACKET_DETAIL = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI";
 
+    // 微信 红包详情
+    public final static String WCN_PACKET_BUTTON = "android.widget.Button";
+
 
 
     /*
@@ -39,10 +42,6 @@ public class WQ {
     */
     // 微信 聊天列表的联系人列表 ListView
     public final static String WID_CHAT_LIST_LISTVIEW = "com.tencent.mm:id/c3p";
-    //
-    //
-    // 目前，兼容模式也要同步更新的地方  -------- 开始
-    //
     // 微信 聊天列表的联系人里面的消息内容 不可点击
     public final static String WID_CHAT_LIST_MESSAGE_TEXT = "com.tencent.mm:id/apv";
     // 微信 聊天列表的联系人 内括名字、消息内容、消息数字、头像  可点击
@@ -53,10 +52,6 @@ public class WQ {
     public final static String WID_CHAT_LIST_MESSAGE_POT = "com.tencent.mm:id/aps";
     // 微信 红包详情的后退按钮
     public final static String WID_PACKET_DETAIL_BACK_BUTTON = "com.tencent.mm:id/ho";
-    //
-    //
-    // 目前，兼容模式也要同步更新的地方  -------- 结束
-    //
 
 
     // 微信 聊天窗口 ListView
@@ -81,6 +76,7 @@ public class WQ {
     public final static String WT_GET_PACKET = "领取红包";
     public final static String WT_SEE_PACKET = "查看红包";
     public final static String WT_GET_PACKET_SELF = "你领取了凡人的红包";
+    public final static String WT_OPEN_SEND_A_PACKET = "发了一个红包";
 
 
 
