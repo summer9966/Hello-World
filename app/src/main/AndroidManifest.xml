@@ -13,6 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:persistent="true"
+        android:versionCode="2"
+        android:versionName="1.1"
         android:theme="@style/AppTheme">
 
         <activity android:name=".MainActivity"

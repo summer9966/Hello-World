@@ -3,9 +3,12 @@ package wonder.wqlm_ct;
 import android.app.ActivityManager;
 import android.app.KeyguardManager;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationManagerCompat;
+import android.widget.Toast;
 
 import java.util.List;
 import java.util.Set;
@@ -93,5 +96,17 @@ public final class Tools {
         kl.reenableKeyguard();
         //释放wakeLock，关灯
         wl.release();
+    }
+
+    public static String getWeChatVersion(Context context) {
+        PackageManager packageManager = context.getPackageManager();
+        List<PackageInfo> packageInfos = packageManager.getInstalledPackages(0);
+        for (PackageInfo packageInfo : packageInfos) {
+            if (packageManager.getApplicationLabel(packageInfo.applicationInfo).toString()
+                    .equals(WQ.WECHAT)) {
+                return packageInfo.versionName;
+            }
+        }
+        return null;
     }
 }

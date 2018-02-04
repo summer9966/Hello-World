@@ -29,9 +29,6 @@ public class CompatibleMode {
     }
 
     public void dealWindowStateChanged(String className, AccessibilityNodeInfo rootNode) {
-        if (rootNode == null) {
-            return;
-        }
         if (className.equals(WQ.WCN_LAUNCHER)) {
             // 聊天页面
             if (config.getIsGotPacketSelf() && WQ.currentSelfPacketStatus == WQ.W_openedPayStatus) {
@@ -50,6 +47,7 @@ public class CompatibleMode {
                     isGotPacket = true;
                 }
             }
+            WQ.isGotPacket = false;
         } else if (className.equals(WQ.WCN_PACKET_SEND)) {
             WQ.setCurrentSelfPacketStatus(WQ.W_openedPacketSendStatus);
         } else if (className.equals((WQ.WCN_PACKET_PAY))) {
@@ -70,9 +68,6 @@ public class CompatibleMode {
 
     public void dealWindowContentChanged(AccessibilityNodeInfo rootNode) {
         WonderLog.i(TAG, "dealWindowContentChanged");
-        if (rootNode == null) {
-            return;
-        }
         if (getPacket(rootNode, false)) {
             WQ.isGotPacket = true;
             handler.postDelayed(new Runnable() {
@@ -87,21 +82,24 @@ public class CompatibleMode {
     }
 
     private boolean openPacket(AccessibilityNodeInfo rootNode) {
-        WonderLog.i(TAG, "openPacket! " + rootNode.toString());
-
-        List<AccessibilityNodeInfo> nodeInfos = rootNode
-                .findAccessibilityNodeInfosByText(WQ.WT_OPEN_SEND_A_PACKET);
-        if (!nodeInfos.isEmpty()) {
-            AccessibilityNodeInfo parent = nodeInfos.get(0).getParent();
-            for (int i = 0; i < parent.getChildCount(); i++) {
-                AccessibilityNodeInfo nodeInfo = parent.getChild(i);
-                if (nodeInfo.isClickable()) {
-                    eventScheduling.addOpenPacketList(nodeInfo);
-                    return true;
+        boolean result = false;
+        if (rootNode != null) {
+            WonderLog.i(TAG, "openPacket! " + rootNode.toString());
+            List<AccessibilityNodeInfo> nodeInfos = rootNode
+                    .findAccessibilityNodeInfosByText(WQ.WT_OPEN_SEND_A_PACKET);
+            if (!nodeInfos.isEmpty()) {
+                AccessibilityNodeInfo parent = nodeInfos.get(0).getParent();
+                for (int i = 0; i < parent.getChildCount(); i++) {
+                    AccessibilityNodeInfo nodeInfo = parent.getChild(i);
+                    if (nodeInfo.isClickable()) {
+                        eventScheduling.addOpenPacketList(nodeInfo);
+                        result = true;
+                    }
                 }
             }
         }
-        return false;
+        WonderLog.i(TAG, "openPacket result =  " + result);
+        return result;
     }
 
     private boolean getPacket(AccessibilityNodeInfo rootNode, boolean isSelfPacket) {
@@ -124,4 +122,26 @@ public class CompatibleMode {
         }
         return result;
     }
+
+    private boolean clickMessage(AccessibilityNodeInfo rootNode) {
+        boolean result = false;
+        if (rootNode == null) {
+            WonderLog.i(TAG, "clickMessage rootNode == null");
+            return false;
+        }
+        List<AccessibilityNodeInfo> nodeInfos = rootNode.findAccessibilityNodeInfosByText(WQ.WT_PACKET);
+        if (!nodeInfos.isEmpty()) {
+            for (int i = 0; i < nodeInfos.size(); i++) {
+                AccessibilityNodeInfo nodeInfo = nodeInfos.get(i);
+                WonderLog.i(TAG, "clickMessage nodeInfo = " + nodeInfo.toString());
+                AccessibilityHelper.performClick(nodeInfo);
+                result = true;
+            }
+        } else {
+            WonderLog.i(TAG, "clickMessage isEmpty!");
+        }
+        WonderLog.i(TAG, "clickMessage result = " + result);
+        return result;
+    }
+
 }

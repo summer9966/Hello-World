@@ -1,10 +1,7 @@
 package wonder.wqlm_ct;
 
 import android.accessibilityservice.AccessibilityService;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.view.accessibility.AccessibilityEvent;
@@ -53,9 +50,9 @@ public class WQAccessibilityService extends AccessibilityService {
         int eventType = accessibilityEvent.getEventType();
         String className = accessibilityEvent.getClassName().toString();
         AccessibilityNodeInfo rootNode = getRootInActiveWindow();
+        // AccessibilityNodeInfo rootNode = findCurrentWindows(accessibilityEvent, WQ.WECHAT);
 
         WonderLog.i(TAG, "onAccessibilityEvent eventType = " + eventType + "className = " + className);
-
         switch (eventType) {
             // 第一步：监听通知栏消息
             /*case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED: {
@@ -104,14 +101,22 @@ public class WQAccessibilityService extends AccessibilityService {
         }
     }
 
-    private AccessibilityNodeInfo getCurrentWindows(AccessibilityEvent accessibilityEvent) {
+    private AccessibilityNodeInfo findCurrentWindows(AccessibilityEvent accessibilityEvent, String title) {
         ArrayList<AccessibilityNodeInfo> windowListRoots = new ArrayList<>();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             List<AccessibilityWindowInfo> windowList = getWindows();
             if (windowList.size() > 0) {
                 for (AccessibilityWindowInfo window : windowList) {
-                    WonderLog.i(TAG, "getCurrentWindows " + window.toString());
-                    windowListRoots.add(window.getRoot());
+                    WonderLog.i(TAG, "findCurrentWindows " + window.toString());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        if (window.getTitle() != null) {
+                            if (window.getTitle().toString().equals(title)) {
+                                return window.getRoot();
+                            }
+                        }
+                    } else {
+                        windowListRoots.add(window.getRoot());
+                    }
                 }
             }
         } else {
@@ -127,7 +132,7 @@ public class WQAccessibilityService extends AccessibilityService {
             }
         }
         if (windowListRoots != null) {
-            WonderLog.i(TAG, "getCurrentWindows size = " + windowListRoots.size());
+            WonderLog.i(TAG, "findCurrentWindows size = " + windowListRoots.size());
         }
         if (windowListRoots.size() > 0) {
             return windowListRoots.get(windowListRoots.size() - 1);

@@ -51,11 +51,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initViewState() {
-        if (config.getRunningMode() == Config.compatibleMode) {
-            cb_modeChoice.setChecked(true);
+        if (Tools.getWeChatVersion(MainActivity.this).equals(Config.currentSupportWVersion)) {
+            if (config.getRunningMode() == Config.compatibleMode) {
+                cb_modeChoice.setChecked(true);
+                cb_useKeyWords.setChecked(false);
+                config.saveIsUsedKeyWords(false);
+            } else {
+                cb_modeChoice.setChecked(false);
+            }
         } else {
-            cb_modeChoice.setChecked(false);
+            cb_modeChoice.setChecked(true);
+            config.saveRunningMode(Config.compatibleMode);
         }
+
         if (Tools.isServiceRunning(this, WQ.SELF_PACKAGE_NAME + "."
                 + WQ.SELFCN_NOTIFICATION)) {
             cb_notification.setChecked(true);
@@ -90,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
         }
         et_delayedTime.setText(String.valueOf(config.getDelayedTime()));
         et_keyWords.setText(config.getPacketKeyWords());
+
+        bt_test.setVisibility(View.INVISIBLE);
     }
 
     private void setClickListener() {
@@ -98,8 +108,18 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (cb_modeChoice.isChecked()) {
                     config.saveRunningMode(Config.compatibleMode);
+                    config.saveIsUsedKeyWords(false);
+                    cb_useKeyWords.setChecked(false);
                 } else {
-                    config.saveRunningMode(Config.highSpeedMode);
+                    if (Tools.getWeChatVersion(MainActivity.this)
+                            .equals(Config.currentSupportWVersion)) {
+                        config.saveRunningMode(Config.highSpeedMode);
+                    } else {
+                        cb_modeChoice.setChecked(true);
+                        config.saveRunningMode(Config.compatibleMode);
+                        Toast.makeText(MainActivity.this, "当前非兼容模式仅支持微信6.6.1版本",
+                                Toast.LENGTH_LONG).show();
+                    }
                 }
             }
         });
@@ -145,7 +165,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (cb_useKeyWords.isChecked()) {
-                    config.saveIsUsedKeyWords(true);
+                    if (config.getRunningMode() != Config.compatibleMode) {
+                        config.saveIsUsedKeyWords(true);
+                    } else {
+                        cb_useKeyWords.setChecked(false);
+                        config.saveIsUsedKeyWords(false);
+                        Toast.makeText(MainActivity.this, "目前兼容模式下不支持关键字过滤",
+                                Toast.LENGTH_LONG).show();
+                    }
                 } else {
                     config.saveIsUsedKeyWords(false);
                 }

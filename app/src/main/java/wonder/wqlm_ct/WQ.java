@@ -11,6 +11,8 @@ public class WQ {
     public final static String SELF_PACKAGE_NAME = "wonder.wqlm_ct";
     // 微信包名
     public final static String WECHAT_PACKAGE_NAME = "com.tencent.mm";
+    // 微信
+    public final static String WECHAT = "微信";
 
 
     /*
