@@ -26,6 +26,7 @@ public class CompatibleMode {
         if (config == null) {
             config = Config.getConfig(WQAccessibilityService.getService());
         }
+        WQ.initWQ(WQAccessibilityService.getService());
     }
 
     public void dealWindowStateChanged(String className, AccessibilityNodeInfo rootNode) {
@@ -78,7 +79,6 @@ public class CompatibleMode {
             }, 500);
             return;
         }
-        // AccessibilityHelper.clickNewMessage(rootNode);
     }
 
     private boolean openPacket(AccessibilityNodeInfo rootNode) {
@@ -91,9 +91,11 @@ public class CompatibleMode {
                 AccessibilityNodeInfo parent = nodeInfos.get(0).getParent();
                 for (int i = 0; i < parent.getChildCount(); i++) {
                     AccessibilityNodeInfo nodeInfo = parent.getChild(i);
-                    if (nodeInfo.isClickable()) {
-                        eventScheduling.addOpenPacketList(nodeInfo);
-                        result = true;
+                    if (nodeInfo.getClassName().toString().equals(WQ.WCN_PACKET_BUTTON)) {
+                        if (nodeInfo.isEnabled()) {
+                            eventScheduling.addOpenPacketList(nodeInfo);
+                            result = true;
+                        }
                     }
                 }
             }

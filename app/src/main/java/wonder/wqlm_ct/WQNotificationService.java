@@ -4,7 +4,6 @@ import android.app.Notification;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
@@ -22,7 +21,6 @@ public class WQNotificationService extends NotificationListenerService {
     private final static String TAG = "WQNotificationService";
 
     private static WQNotificationService wqNotificationService;
-    private Handler handler = new Handler();
 
     @Override
     public void onListenerConnected() {
@@ -45,20 +43,20 @@ public class WQNotificationService extends NotificationListenerService {
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
-        if (WQ.isGotNotification || WQ.isClickedNewMessageList || WQ.isGotPacket) {
+        if (WQBase.isGotNotification || WQBase.isClickedNewMessageList || WQBase.isGotPacket) {
             WonderLog.i(TAG, "onNotificationPosted: return \n"
-                    + "WQ.isGotNotification = " + WQ.isGotNotification
-            + "WQ.isClickedNewMessageList = " + WQ.isClickedNewMessageList
-            + "WQ.isGotPacket = " + WQ.isGotPacket);
+                    + "WQ.isGotNotification = " + WQBase.isGotNotification
+            + "WQ.isClickedNewMessageList = " + WQBase.isClickedNewMessageList
+            + "WQ.isGotPacket = " + WQBase.isGotPacket);
             return;
         }
         WonderLog.i(TAG, "onNotificationPosted: " + sbn.getPackageName().toString()
                 + " " + sbn.getNotification().extras.getString(Notification.EXTRA_TEXT));
         if (Tools.isLockScreen(this.getApplication())) {
             Tools.wakeAndUnlock(this.getApplication());
-            WQ.isPreviouslyLockScreen = true;
+            WQBase.isPreviouslyLockScreen = true;
         }
-        if (AccessibilityHelper.openNotification(sbn, WQ.WECHAT_PACKAGE_NAME, WQ.WT_PACKET)) {
+        if (AccessibilityHelper.openNotification(sbn, WQBase.WECHAT_PACKAGE_NAME, WQBase.WT_PACKET)) {
             // WQ.isGotNotification = true;
             /* handler.postDelayed(new Runnable() {
                 @Override

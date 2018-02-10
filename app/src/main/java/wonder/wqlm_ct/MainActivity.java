@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -18,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Config config;
 
-    private CheckBox cb_modeChoice, cb_notification, cb_accessibility;
+    private CheckBox cb_highSpeedMode, cb_notification, cb_accessibility;
     private CheckBox cb_getPacketSelf, cb_usedDelayed, cb_usedRandomDelayed, cb_useKeyWords;
     private EditText et_delayedTime, et_keyWords;
     private Button bt_test;
@@ -32,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initObj() {
-        cb_modeChoice = findViewById(R.id.cb_modeChoice);
+        cb_highSpeedMode = findViewById(R.id.cb_highSpeedMode);
         cb_notification = findViewById(R.id.cb_notification);
         cb_accessibility = findViewById(R.id.cb_accessibility);
         cb_getPacketSelf = findViewById(R.id.cb_getPacketSelf);
@@ -51,27 +50,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initViewState() {
-        if (Tools.getWeChatVersion(MainActivity.this).equals(Config.currentSupportWVersion)) {
-            if (config.getRunningMode() == Config.compatibleMode) {
-                cb_modeChoice.setChecked(true);
+        if (config.getRunningMode() == Config.highSpeedMode) {
+            if (Tools.isSupportHighSpeedMode(MainActivity.this)) {
+                cb_highSpeedMode.setChecked(true);
+            } else {
+                cb_highSpeedMode.setChecked(false);
+                config.saveRunningMode(Config.compatibleMode);
                 cb_useKeyWords.setChecked(false);
                 config.saveIsUsedKeyWords(false);
-            } else {
-                cb_modeChoice.setChecked(false);
             }
         } else {
-            cb_modeChoice.setChecked(true);
-            config.saveRunningMode(Config.compatibleMode);
+            cb_highSpeedMode.setChecked(false);
+            cb_useKeyWords.setChecked(false);
+            config.saveIsUsedKeyWords(false);
         }
 
-        if (Tools.isServiceRunning(this, WQ.SELF_PACKAGE_NAME + "."
-                + WQ.SELFCN_NOTIFICATION)) {
+        if (Tools.isServiceRunning(this, WQBase.SELF_PACKAGE_NAME + "."
+                + WQBase.SELFCN_NOTIFICATION)) {
             cb_notification.setChecked(true);
         } else {
             cb_notification.setChecked(false);
         }
-        if (Tools.isServiceRunning(this, WQ.SELF_PACKAGE_NAME + "."
-                + WQ.SELFCN_ACCESSBILITY)) {
+        if (Tools.isServiceRunning(this, WQBase.SELF_PACKAGE_NAME + "."
+                + WQBase.SELFCN_ACCESSBILITY)) {
             cb_accessibility.setChecked(true);
         } else {
             cb_accessibility.setChecked(false);
@@ -103,23 +104,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setClickListener() {
-        cb_modeChoice.setOnClickListener(new View.OnClickListener() {
+        cb_highSpeedMode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (cb_modeChoice.isChecked()) {
+                if (cb_highSpeedMode.isChecked()) {
+                    if (Tools.isSupportHighSpeedMode(MainActivity.this)){
+                        config.saveRunningMode(Config.highSpeedMode);
+                    } else {
+                        cb_highSpeedMode.setChecked(false);
+                        config.saveRunningMode(Config.compatibleMode);
+                        Toast.makeText(MainActivity.this, "当前微信版本不支持高速模式！",
+                                Toast.LENGTH_LONG).show();
+                    }
+                } else {
                     config.saveRunningMode(Config.compatibleMode);
                     config.saveIsUsedKeyWords(false);
                     cb_useKeyWords.setChecked(false);
-                } else {
-                    if (Tools.getWeChatVersion(MainActivity.this)
-                            .equals(Config.currentSupportWVersion)) {
-                        config.saveRunningMode(Config.highSpeedMode);
-                    } else {
-                        cb_modeChoice.setChecked(true);
-                        config.saveRunningMode(Config.compatibleMode);
-                        Toast.makeText(MainActivity.this, "当前非兼容模式仅支持微信6.6.1版本",
-                                Toast.LENGTH_LONG).show();
-                    }
                 }
             }
         });
@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplication(), "当前安卓系统版本过低，请手动设置本应用的通知读取权限",
                             Toast.LENGTH_LONG).show();
                     boolean isNotificationServiceRunning = Tools.isServiceRunning(getApplication(),
-                            WQ.SELF_PACKAGE_NAME + "." + WQ.SELFCN_NOTIFICATION);
+                            WQBase.SELF_PACKAGE_NAME + "." + WQBase.SELFCN_NOTIFICATION);
                     cb_notification.setChecked(isNotificationServiceRunning);
                 }
             }

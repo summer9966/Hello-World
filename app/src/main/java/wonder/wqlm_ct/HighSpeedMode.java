@@ -3,10 +3,7 @@ package wonder.wqlm_ct;
 import android.os.Handler;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.Thread.sleep;
 
 
 /**
@@ -16,11 +13,12 @@ import static java.lang.Thread.sleep;
 public class HighSpeedMode {
     private final static String TAG = "HighSpeedMode";
 
+    private EventScheduling eventScheduling;
     private Config config;
 
     private static boolean isGotPacket = false;
     private static Handler handler = new Handler();
-    private EventScheduling eventScheduling;
+
 
     public HighSpeedMode() {
         if (eventScheduling == null) {
@@ -29,6 +27,7 @@ public class HighSpeedMode {
         if (config == null) {
             config = Config.getConfig(WQAccessibilityService.getService());
         }
+        WQ.initWQ(WQAccessibilityService.getService());
     }
 
     public void dealWindowStateChanged(String className, final AccessibilityNodeInfo rootNode) {
@@ -84,7 +83,7 @@ public class HighSpeedMode {
     public void dealWindowContentChanged(String className, AccessibilityNodeInfo rootNode) {
         WonderLog.i(TAG, "dealWindowContentChanged");
         if (WQ.backtoMessageListStatus == WQ.backtoMessageListChatDialog) {
-            if (AccessibilityHelper.clickMessage(rootNode)) {
+            if (clickMessage(rootNode)) {
                 WQ.backtoMessageListStatus = WQ.backtoMessageListOther;
             }
             return;
@@ -92,7 +91,7 @@ public class HighSpeedMode {
             return;
         }
 
-        if (AccessibilityHelper.clickNewMessage(rootNode)) {
+        if (clickNewMessage(rootNode)) {
             WQ.isClickedNewMessageList = true;
             handler.postDelayed(new Runnable() {
                 @Override
@@ -210,6 +209,56 @@ public class HighSpeedMode {
             }
         }
         WonderLog.i(TAG, "isContainKeyWords result = " + result);
+        return result;
+    }
+
+    private boolean clickNewMessage(AccessibilityNodeInfo nodeInfo) {
+        WonderLog.i(TAG, "clickNewMessage");
+        if (nodeInfo == null) {
+            WonderLog.i(TAG, "clickNewMessage nodeInfo == null");
+            return false;
+        }
+        boolean result = false;
+        List<AccessibilityNodeInfo> dialogList = nodeInfo.findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_LIST_DIALOG);
+        if (!dialogList.isEmpty()) {
+            for (AccessibilityNodeInfo item : dialogList) {
+                List<AccessibilityNodeInfo> newMessageList = item.findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_LIST_MESSAGE_NUM);
+                newMessageList.addAll(item.findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_LIST_MESSAGE_POT));
+                if (!newMessageList.isEmpty()) {
+                    List<AccessibilityNodeInfo> newMessageTextList = item.findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_LIST_MESSAGE_TEXT);
+                    if (!newMessageTextList.isEmpty()) {
+                        if (newMessageTextList.get(0).getText().toString().contains(WQ.WT_PACKET)) {
+                            item.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                            result = true;
+                        }
+                    }
+                }
+            }
+        }
+        WonderLog.i(TAG, "clickNewMessage result = " + result);
+        return result;
+    }
+
+    private boolean clickMessage(AccessibilityNodeInfo nodeInfo) {
+        WonderLog.i(TAG, "clickMessage");
+        if (nodeInfo == null) {
+            WonderLog.i(TAG, "clickMessage nodeInfo == null");
+            return false;
+        }
+        boolean result = false;
+        List<AccessibilityNodeInfo> dialogList = nodeInfo.findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_LIST_DIALOG);
+        if (!dialogList.isEmpty()) {
+            for (AccessibilityNodeInfo item : dialogList) {
+                List<AccessibilityNodeInfo> messageTextList = item.findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_LIST_MESSAGE_TEXT);
+                if (!messageTextList.isEmpty()) {
+                    if (messageTextList.get(0).getText().toString().contains(WQ.WT_PACKET)) {
+                        item.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                        result = true;
+                    }
+                }
+            }
+        }
+        WonderLog.i(TAG, "clickMessage result = " + result);
         return result;
     }
 

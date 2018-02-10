@@ -16,9 +16,7 @@ public final class AccessibilityHelper {
 
     private final static String TAG = "AccessibilityHelper";
 
-    private AccessibilityHelper() {}
-
-    public static boolean performClick(AccessibilityNodeInfo nodeInfo) {
+    static boolean performClick(AccessibilityNodeInfo nodeInfo) {
         WonderLog.i(TAG, "performClick");
         if(nodeInfo == null) {
             WonderLog.i(TAG, "performClick noInfo == null.");
@@ -33,56 +31,6 @@ public final class AccessibilityHelper {
         }
         WonderLog.i(TAG, "performClick return false.");
         return false;
-    }
-
-    public static boolean clickNewMessage(AccessibilityNodeInfo nodeInfo) {
-        WonderLog.i(TAG, "clickNewMessage");
-        if (nodeInfo == null) {
-            WonderLog.i(TAG, "clickNewMessage nodeInfo == null");
-            return false;
-        }
-        boolean result = false;
-        List<AccessibilityNodeInfo> dialogList = nodeInfo.findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_LIST_DIALOG);
-        if (!dialogList.isEmpty()) {
-            for (AccessibilityNodeInfo item : dialogList) {
-                List<AccessibilityNodeInfo> newMessageList = item.findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_LIST_MESSAGE_NUM);
-                newMessageList.addAll(item.findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_LIST_MESSAGE_POT));
-                if (!newMessageList.isEmpty()) {
-                    List<AccessibilityNodeInfo> newMessageTextList = item.findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_LIST_MESSAGE_TEXT);
-                    if (!newMessageTextList.isEmpty()) {
-                        if (newMessageTextList.get(0).getText().toString().contains(WQ.WT_PACKET)) {
-                            item.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                            result = true;
-                        }
-                    }
-                }
-            }
-        }
-        WonderLog.i(TAG, "clickNewMessage result = " + result);
-        return result;
-    }
-
-    public static boolean clickMessage(AccessibilityNodeInfo nodeInfo) {
-        WonderLog.i(TAG, "clickMessage");
-        if (nodeInfo == null) {
-            WonderLog.i(TAG, "clickMessage nodeInfo == null");
-            return false;
-        }
-        boolean result = false;
-        List<AccessibilityNodeInfo> dialogList = nodeInfo.findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_LIST_DIALOG);
-        if (!dialogList.isEmpty()) {
-            for (AccessibilityNodeInfo item : dialogList) {
-                List<AccessibilityNodeInfo> messageTextList = item.findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_LIST_MESSAGE_TEXT);
-                if (!messageTextList.isEmpty()) {
-                    if (messageTextList.get(0).getText().toString().contains(WQ.WT_PACKET)) {
-                        item.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                        result = true;
-                    }
-                }
-            }
-        }
-        WonderLog.i(TAG, "clickMessage result = " + result);
-        return result;
     }
 
     public static boolean openNotification(final AccessibilityEvent accessibilityEvent, final String textFound) {
@@ -112,21 +60,22 @@ public final class AccessibilityHelper {
         return false;
     }
 
-    public static boolean openNotification(final StatusBarNotification sbn, final String packageFound, final String textFound) {
+    static boolean openNotification(final StatusBarNotification sbn, final String packageFound, final String textFound) {
         WonderLog.i(TAG, "openNotification  StatusBarNotification");
         String packageName = sbn.getPackageName().toString();
         if (packageName.equals(packageFound)) {
             String content = sbn.getNotification().extras.getString(Notification.EXTRA_TEXT);
-            if (content.contains(textFound)) {
-                PendingIntent pendingIntent = sbn.getNotification().contentIntent;
-                try {
-                    pendingIntent.send();
-                    return true;
-                } catch (PendingIntent.CanceledException e) {
-                    e.printStackTrace();
+            if (content != null) {
+                if (content.contains(textFound)) {
+                    PendingIntent pendingIntent = sbn.getNotification().contentIntent;
+                    try {
+                        pendingIntent.send();
+                        return true;
+                    } catch (PendingIntent.CanceledException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-
         }
         return false;
     }
@@ -153,7 +102,7 @@ public final class AccessibilityHelper {
     }
 
     /** 返回事件*/
-    public static void performBack(AccessibilityService service) {
+    static void performBack(AccessibilityService service) {
         if(service == null) {
             return;
         }

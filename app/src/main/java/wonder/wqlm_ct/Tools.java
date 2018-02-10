@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationManagerCompat;
-import android.widget.Toast;
 
 import java.util.List;
 import java.util.Set;
@@ -103,10 +102,20 @@ public final class Tools {
         List<PackageInfo> packageInfos = packageManager.getInstalledPackages(0);
         for (PackageInfo packageInfo : packageInfos) {
             if (packageManager.getApplicationLabel(packageInfo.applicationInfo).toString()
-                    .equals(WQ.WECHAT)) {
+                    .equals(WQBase.WECHAT)) {
                 return packageInfo.versionName;
             }
         }
         return null;
+    }
+
+    public static boolean isSupportHighSpeedMode(Context context) {
+        if (Tools.getWeChatVersion(context).equals(WQ.WeChatVersion_6_6_1)) {
+            return true;
+        } else if (Tools.getWeChatVersion(context).equals(WQ.WeChatVersion_6_6_2)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

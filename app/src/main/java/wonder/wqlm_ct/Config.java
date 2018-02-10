@@ -11,9 +11,6 @@ public class Config {
     private final static String TAG = "Config";
     private final static String WonderConfig = "wonderConfig";
 
-    // 当前高速模式支持的微信版本
-    public final static String currentSupportWVersion = "6.6.1";
-
     // 运行模式
     // 0 兼容模式：尽可能通过Text来查找Node
     public final static int compatibleMode = 0;

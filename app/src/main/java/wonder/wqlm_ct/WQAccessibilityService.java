@@ -70,7 +70,7 @@ public class WQAccessibilityService extends AccessibilityService {
                 break;
             }*/
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED: {
-                WonderLog.i(TAG, "窗口状态改变");
+                WonderLog.i(TAG, "窗口状态改变 className = " + className);
                 if (config.getRunningMode() == Config.compatibleMode) {
                     compatibleMode.dealWindowStateChanged(className, rootNode);
                 } else {
