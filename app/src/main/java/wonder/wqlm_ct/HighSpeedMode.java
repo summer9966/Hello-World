@@ -17,7 +17,6 @@ public class HighSpeedMode {
     private Config config;
 
     private static boolean isGotPacket = false;
-    private static Handler handler = new Handler();
 
 
     public HighSpeedMode() {
@@ -62,14 +61,16 @@ public class HighSpeedMode {
             WQ.isClickedNewMessageList = false;
             WQ.isGotPacket = false;
         } else if (className.equals(WQ.WCN_PACKET_SEND)) {
-            WQ.setCurrentSelfPacketStatus(WQ.W_openedPacketSendStatus);
+            if (WQ.currentSelfPacketStatus <= WQ.W_otherStatus) {
+                WQ.setCurrentSelfPacketStatus(WQ.W_openedPacketSendStatus);
+            }
         } else if (className.equals((WQ.WCN_PACKET_PAY))) {
             if (WQ.currentSelfPacketStatus == WQ.W_openedPacketSendStatus) {
                 WQ.setCurrentSelfPacketStatus(WQ.W_openedPayStatus);
             }
         } else if (className.equals(WQ.WCN_PACKET_DETAIL)) {
             WonderLog.i(TAG, "dealWindowStateChanged 红包详情页面");
-            if (WQ.currentSelfPacketStatus == WQ.W_gotSelfPacketStatus) {
+            if (WQ.currentSelfPacketStatus != WQ.W_otherStatus) {
                 AccessibilityHelper.performBack(WQAccessibilityService.getService());
                 WQ.setCurrentSelfPacketStatus(WQ.W_otherStatus);
             }
@@ -93,22 +94,12 @@ public class HighSpeedMode {
 
         if (clickNewMessage(rootNode)) {
             WQ.isClickedNewMessageList = true;
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    WQ.isClickedNewMessageList = false;
-                }
-            }, 500);
+            eventScheduling.resetIsClickedNewMessageList();
             return;
         }
         if (getPacket(rootNode, false)) {
             WQ.isGotPacket = true;
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    WQ.isGotPacket = false;
-                }
-            }, 500);
+            eventScheduling.resetIsGotPacket();
             return;
         }
 
@@ -160,12 +151,7 @@ public class HighSpeedMode {
             AccessibilityHelper.performBack(WQAccessibilityService.getService());
             WQ.backtoMessageListStatus = WQ.backtoMessageListReceiveUI;
             WonderLog.w(TAG, "openPacket == null");
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    WQ.backtoMessageListStatus = WQ.backtoMessageListOther;
-                }
-            }, 2000);
+            eventScheduling.resetBacktoMessageListStatus();
             return false;
         } else if (WQ.backtoMessageListStatus >= WQ.backtoMessageListReceiveUI) {
             return false;

@@ -62,7 +62,7 @@ public final class AccessibilityHelper {
 
     static boolean openNotification(final StatusBarNotification sbn, final String packageFound, final String textFound) {
         WonderLog.i(TAG, "openNotification  StatusBarNotification");
-        String packageName = sbn.getPackageName().toString();
+        String packageName = sbn.getPackageName();
         if (packageName.equals(packageFound)) {
             String content = sbn.getNotification().extras.getString(Notification.EXTRA_TEXT);
             if (content != null) {

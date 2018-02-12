@@ -50,7 +50,7 @@ public class WQNotificationService extends NotificationListenerService {
             + "WQ.isGotPacket = " + WQBase.isGotPacket);
             return;
         }
-        WonderLog.i(TAG, "onNotificationPosted: " + sbn.getPackageName().toString()
+        WonderLog.i(TAG, "onNotificationPosted: " + sbn.getPackageName()
                 + " " + sbn.getNotification().extras.getString(Notification.EXTRA_TEXT));
         if (Tools.isLockScreen(this.getApplication())) {
             Tools.wakeAndUnlock(this.getApplication());
