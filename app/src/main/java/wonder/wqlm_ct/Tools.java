@@ -110,12 +110,6 @@ public final class Tools {
     }
 
     public static boolean isSupportHighSpeedMode(Context context) {
-        if (Tools.getWeChatVersion(context).equals(WQ.WeChatVersion_6_6_1)) {
-            return true;
-        } else if (Tools.getWeChatVersion(context).equals(WQ.WeChatVersion_6_6_2)) {
-            return true;
-        } else {
-            return false;
-        }
+        return true;
     }
 }

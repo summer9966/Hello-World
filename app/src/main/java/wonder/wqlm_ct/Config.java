@@ -16,9 +16,13 @@ public class Config {
     public final static int compatibleMode = 0;
     // 1 高速模式：通过ViewID来查找Node
     public final static int highSpeedMode = 1;
-    private int runningMode = highSpeedMode;
+    private int runningMode = compatibleMode;
+    // 左边红包的 X 坐标 （别人发的）
+    private static int lefPacketPos = 0;
+    // 右边红包的 X 坐标 （自己发的）
+    private static int rightPacketPos = 0;
 
-    private boolean isGotPacketSelf = true;
+    private boolean isGotPacketSelf = false;
 
     private boolean isUsedDelayed = true;
     private boolean isUsedRandomDelayed = false;
@@ -121,5 +125,47 @@ public class Config {
 
     public void savePacketKeyWords(String keyWords) {
         sharedPreferences.edit().putString("packetKeyWords", keyWords).apply();
+    }
+
+    public int getLefPacketPos() {
+        return sharedPreferences.getInt("leftPacketPos", lefPacketPos);
+    }
+
+    public void setLefPacketPos(int lefPacketPos) {
+        sharedPreferences.edit().putInt("leftPacketPos", lefPacketPos).apply();
+    }
+
+    public int getRightPacketPos() {
+        return sharedPreferences.getInt("rightPacketPos", rightPacketPos);
+    }
+
+    public void setRightPacketPos(int rightPacketPos) {
+        sharedPreferences.edit().putInt("rightPacketPos", rightPacketPos).apply();
+    }
+
+    public boolean isGotPacketPosDone() {
+        WonderLog.i(TAG, "getLeftPacketPos() = " + getLefPacketPos()
+        + "getRightPacketPos() = " + getRightPacketPos());
+        if (getLefPacketPos() != 0 && getRightPacketPos() != 0
+                && getLefPacketPos() < getRightPacketPos()) {
+            return true;
+        }
+        return false;
+    }
+
+    public void setGotPacketPos(int pos) {
+        if (getLefPacketPos() == 0) {
+            setLefPacketPos(pos);
+        } else {
+            if (getLefPacketPos() == pos) {
+                return;
+            }
+            if (getLefPacketPos() > pos) {
+                setRightPacketPos(getLefPacketPos());
+                setLefPacketPos(pos);
+            } else {
+                setRightPacketPos(pos);
+            }
+        }
     }
 }

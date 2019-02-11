@@ -1,5 +1,6 @@
 package wonder.wqlm_ct;
 
+import android.graphics.Rect;
 import android.os.Handler;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -17,6 +18,7 @@ public class HighSpeedMode {
     private Config config;
 
     private static boolean isGotPacket = false;
+    private Rect packetRect = new Rect(0, 0, 0, 0);
 
 
     public HighSpeedMode() {
@@ -26,7 +28,6 @@ public class HighSpeedMode {
         if (config == null) {
             config = Config.getConfig(WQAccessibilityService.getService());
         }
-        WQ.initWQ(WQAccessibilityService.getService());
     }
 
     public void dealWindowStateChanged(String className, final AccessibilityNodeInfo rootNode) {
@@ -115,28 +116,40 @@ public class HighSpeedMode {
                 .findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_DIALOG_PACKET);
         if (!packetList.isEmpty()) {
             for (int i = packetList.size() - 1; i >= 0; i--) {
+                // 已领取 或者 已被领完 的红包不点开
+                List<AccessibilityNodeInfo> packetTextGot = packetList
+                        .get(i).findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_DIALOG_PACKET_CONTENT_GOT);
+                if (!packetTextGot.isEmpty()) {
+                    if (packetTextGot.get(0).toString().contains(WQ.WT_GOT_PACKET)
+                            || packetTextGot.get(0).toString().contains(WQ.WT_GOT_PACKET_ALL)) {
+                        WonderLog.i(TAG, "packet had got !");
+                        continue;
+                    }
+                }
+                // 自己发的不抢
+                packetList.get(i).getBoundsInScreen(packetRect);
+                WonderLog.i(TAG, "PacketPosRect.left = " + packetRect.left);
+                if (config.isGotPacketPosDone()) {
+                    if (packetRect.left > config.getLefPacketPos()) {
+                        WonderLog.i(TAG, "is self packet !");
+                        continue;
+                    } else {
+                        config.setGotPacketPos(packetRect.left);
+                    }
+                } else {
+                    config.setGotPacketPos(packetRect.left);
+                }
+                // 延时抢红包，加入队列
                 List<AccessibilityNodeInfo> packetTextList = packetList
                         .get(i).findAccessibilityNodeInfosByViewId(WQ.WID_CHAT_DIALOG_PACKET_TEXT);
                 if (!packetTextList.isEmpty()) {
-                    if (isSelfPacket) {
-                        if (packetTextList.get(0).getText().toString().contains(WQ.WT_SEE_PACKET)) {
-                            if (config.getIsUsedKeyWords()) {
-                                result = isInKeyWordsMode(packetList, i);
-                            } else {
-                                // packetList.get(i).performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                                eventScheduling.addGetPacketList(packetList.get(i));
-                                result = true;
-                            }
-                        }
-                    } else {
-                        if (packetTextList.get(0).getText().toString().contains(WQ.WT_GET_PACKET)) {
-                            if (config.getIsUsedKeyWords()) {
-                                result = isInKeyWordsMode(packetList, i);
-                            } else {
-                                // packetList.get(i).performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                                eventScheduling.addGetPacketList(packetList.get(i));
-                                result = true;
-                            }
+                    if (packetTextList.get(0).getText().toString().contains(WQ.WT_GET_PACKET)) {
+                        if (config.getIsUsedKeyWords()) {
+                            result = isInKeyWordsMode(packetList, i);
+                        } else {
+                            // packetList.get(i).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                            eventScheduling.addGetPacketList(packetList.get(i));
+                            result = true;
                         }
                     }
                 }

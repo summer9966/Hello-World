@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
                 cb_useKeyWords.setChecked(false);
                 config.saveIsUsedKeyWords(false);
             }
+            cb_highSpeedMode.setEnabled(false);
         } else {
             cb_highSpeedMode.setChecked(false);
             cb_useKeyWords.setChecked(false);
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
             cb_getPacketSelf.setChecked(true);
         } else {
             cb_getPacketSelf.setChecked(false);
+            cb_getPacketSelf.setEnabled(false);
         }
         if (config.getIsUsedDelayed()) {
             cb_usedDelayed.setChecked(true);
@@ -101,6 +103,13 @@ public class MainActivity extends AppCompatActivity {
         et_keyWords.setText(config.getPacketKeyWords());
 
         bt_test.setVisibility(View.INVISIBLE);
+
+        // 检测是否是支持的微信版本
+        if (!Tools.getWeChatVersion(this).contains(WQ.SUPPORT_WECHAT_VERSION)) {
+            Toast.makeText(MainActivity.this, "当前微信版本不支持!"
+                    + "请使用微信 " + WQ.SUPPORT_WECHAT_VERSION,
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     private void setClickListener() {

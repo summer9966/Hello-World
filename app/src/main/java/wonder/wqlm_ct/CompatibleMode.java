@@ -25,7 +25,6 @@ public class CompatibleMode {
         if (config == null) {
             config = Config.getConfig(WQAccessibilityService.getService());
         }
-        WQ.initWQ(WQAccessibilityService.getService());
     }
 
     public void dealWindowStateChanged(String className, AccessibilityNodeInfo rootNode) {

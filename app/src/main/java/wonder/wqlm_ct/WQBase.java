@@ -14,6 +14,9 @@ public class WQBase {
     // 微信
     public static String WECHAT = "微信";
 
+    // 当前支持的微信版本
+    public static String SUPPORT_WECHAT_VERSION = "7.0.3";
+
 
     /*
         Class Name
@@ -26,15 +29,15 @@ public class WQBase {
     // 微信 聊天列表、聊天窗口
     public static String WCN_LAUNCHER = "com.tencent.mm.ui.LauncherUI";
     // 微信 红包“開”的窗口
-    public static String WCN_PACKET_RECEIVE = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyReceiveUI";
+    public static String WCN_PACKET_RECEIVE = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyNotHookReceiveUI";
     // 微信 自己发红包的窗口
     public static String WCN_PACKET_SEND = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyPrepareUI";
     // 微信 自己发红包输入密码的界面
-    public static String WCN_PACKET_PAY = "com.tencent.mm.plugin.wallet_core.ui.l";
+    public static String WCN_PACKET_PAY = "com.tencent.mm.plugin.wallet_core.ui.q";
     // 微信 红包详情
     public static String WCN_PACKET_DETAIL = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI";
 
-    // 微信 红包详情
+    // 微信 红包按钮
     public static String WCN_PACKET_BUTTON = "android.widget.Button";
 
 
@@ -43,43 +46,46 @@ public class WQBase {
         Resource-id
     */
     // 微信 聊天列表的联系人列表 ListView
-    public static String WID_CHAT_LIST_LISTVIEW = "com.tencent.mm:id/c3p";
+    // public static String WID_CHAT_LIST_LISTVIEW = "com.tencent.mm:id/c3p";
     // 微信 聊天列表的联系人里面的消息内容 不可点击
-    public static String WID_CHAT_LIST_MESSAGE_TEXT = "com.tencent.mm:id/apv";
+    public static String WID_CHAT_LIST_MESSAGE_TEXT = "com.tencent.mm:id/b5q";
     // 微信 聊天列表的联系人 内括名字、消息内容、消息数字、头像  可点击
-    public static String WID_CHAT_LIST_DIALOG = "com.tencent.mm:id/apr";
+    public static String WID_CHAT_LIST_DIALOG = "com.tencent.mm:id/b5m";
     // 微信 聊天列表的联系人里面的消息数字 不可点击
-    public static String WID_CHAT_LIST_MESSAGE_NUM = "com.tencent.mm:id/iu";
+    public static String WID_CHAT_LIST_MESSAGE_NUM = "com.tencent.mm:id/mv";
     // 微信 聊天列表的联系人里面的消息点（即屏蔽的群有消息） 不可点击
-    public static String WID_CHAT_LIST_MESSAGE_POT = "com.tencent.mm:id/aps";
+    public static String WID_CHAT_LIST_MESSAGE_POT = "com.tencent.mm:id/b5n";
     // 微信 红包详情的后退按钮
-    public static String WID_PACKET_DETAIL_BACK_BUTTON = "com.tencent.mm:id/ho";
+    // public static String WID_PACKET_DETAIL_BACK_BUTTON = "com.tencent.mm:id/ho";
 
 
     // 微信 聊天窗口 ListView
-    public static String WID_CHAT_DIALOG_LISTVIEW = "com.tencent.mm:id/a_h";
+    // public static String WID_CHAT_DIALOG_LISTVIEW = "com.tencent.mm:id/a_h";
     // 微信 聊天窗口 收到红包 可点击
-    public static String WID_CHAT_DIALOG_PACKET = "com.tencent.mm:id/ada";
-    // 微信 聊天窗口 收到红包 红包的文字（领取红包/查看红包） 不可点击
-    public static String WID_CHAT_DIALOG_PACKET_TEXT = "com.tencent.mm:id/aeb";
-    // 微信 聊天窗口 收到红包 红包的文字内容 不可点击
-    public static String WID_CHAT_DIALOG_PACKET_CONTENT = "com.tencent.mm:id/aea";
+    public static String WID_CHAT_DIALOG_PACKET = "com.tencent.mm:id/aou";
+    // 微信 聊天窗口 收到红包 红包的文字（微信红包） 不可点击
+    public static String WID_CHAT_DIALOG_PACKET_TEXT = "com.tencent.mm:id/aq7";
+    // 微信 聊天窗口 收到红包 红包的文字内容 不可点击 （发红包者自己写的内容）
+    public static String WID_CHAT_DIALOG_PACKET_CONTENT = "com.tencent.mm:id/aq5";
+    // 微信 聊天窗口 收到红包 红包的文字内容 不可点击 （已领取）
+    public static String WID_CHAT_DIALOG_PACKET_CONTENT_GOT = "com.tencent.mm:id/aq6";
     // 微信 聊天窗口 收到红包 XX领取了XX的红包
-    public static String WID_CHAT_DIALOG_HAD_OPEN_PACKET = "com.tencent.mm:id/j_";
+    // public static String WID_CHAT_DIALOG_HAD_OPEN_PACKET = "com.tencent.mm:id/j_";
 
     // 微信 聊天窗口 打开红包弹窗  “開”
-    public static String WID_CHAT_PACKET_DIALOG_BUTTON = "com.tencent.mm:id/c2i";
+    public static String WID_CHAT_PACKET_DIALOG_BUTTON = "com.tencent.mm:id/cyf";
 
 
     /*
         Resource text
     */
     public static String WT_PACKET = "[微信红包]";
-    public static String WT_GET_PACKET = "领取红包";
-    public static String WT_SEE_PACKET = "查看红包";
-    public static String WT_GET_PACKET_SELF = "你领取了凡人的红包";
+    public static String WT_GET_PACKET = "微信红包";
+    public static String WT_SEE_PACKET = "微信红包";
+    // public static String WT_GET_PACKET_SELF = "你领取了凡人的红包";
     public static String WT_OPEN_SEND_A_PACKET = "发了一个红包";
-
+    public static String WT_GOT_PACKET = "已领取";
+    public static String WT_GOT_PACKET_ALL = "已被领完";
 
     public static int W_otherStatus = 0;
     public static int W_openedPacketSendStatus = 1;
